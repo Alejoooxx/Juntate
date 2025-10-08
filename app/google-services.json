@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "83959542319",
+    "project_id": "juntate-app",
+    "storage_bucket": "juntate-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:83959542319:android:7a96f885387f8e86bd8cda",
+        "android_client_info": {
+          "package_name": "com.example.juntate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAisNvbSwIJEDztg296BPN4Ha9qZ1m4QaE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
