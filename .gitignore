@@ -1,0 +1,54 @@
+# Gradle
+.gradle/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+gradle-app.setting
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/gradle.xml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local config
+local.properties
+
+# Keystores (no subas tus llaves!)
+*.jks
+*.keystore
+**/keystore/**
+**/signing/**
+
+# Logs
+*.log
+
+# NDK / CMake
+/.cxx/
+.externalNativeBuild/
+
+# Firebase Crashlytics
+fabric.properties
+crashlytics.properties
+crashlytics-build.properties
+
+# Kotlin
+.kotlin/
+
+# Android profiling
+*.hprof
+
+# Generated
+captures/
+outputs/
+navigation.json
