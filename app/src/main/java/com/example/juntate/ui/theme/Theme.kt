@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 
 
-// 🌙 Modo oscuro
+//  Modo oscuro
 private val DarkColorScheme = darkColorScheme(
     primary = PrimaryGreen,
     secondary = MutedGreen,
@@ -25,7 +25,7 @@ private val DarkColorScheme = darkColorScheme(
     onTertiary = White
 )
 
-// ☀️ Modo claro
+//  Modo claro
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryGreen,
     secondary = PrimaryLightGreen,

@@ -39,15 +39,13 @@ fun OnboardingScreen(
                     colors = listOf(PrimaryGreen, darkerGreen)
                 )
             ),
-        // ✅ Se quita el padding horizontal de aquí para permitir que la imagen se expanda.
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        // --- Sección Superior (Logo y Texto) ---
+        //Sección Superior (Logo y Texto)
         Column(
             modifier = Modifier
                 .weight(1.2f)
-                // ✅ Se añade el padding aquí directamente.
                 .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom
@@ -69,23 +67,21 @@ fun OnboardingScreen(
             )
         }
 
-        // --- Sección Central (Ilustración) ---
+        //Sección Central (Ilustración)
         Image(
             painter = painterResource(id = R.drawable.ic_onboarding_people),
             contentDescription = "Personas entrenando",
             modifier = Modifier
-                // ✅ fillMaxWidth() ahora funciona sobre el ancho completo de la pantalla.
                 .fillMaxWidth()
                 .height(peopleImageHeight)
                 .weight(1.2f, fill = false)
                 .padding(vertical = 24.dp)
         )
 
-        // --- Sección Inferior (Botón) ---
+        //Sección Inferior (Botón)
         Box(
             modifier = Modifier
                 .weight(1f)
-                // ✅ Se añade el padding aquí también.
                 .padding(horizontal = 32.dp),
             contentAlignment = Alignment.Center
         ) {
