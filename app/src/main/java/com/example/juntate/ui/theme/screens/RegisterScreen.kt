@@ -1,8 +1,8 @@
 package com.example.juntate.ui.theme.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,9 +13,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -31,142 +32,146 @@ import com.example.juntate.ui.theme.*
 import com.example.juntate.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
+val BackgroundGray = Color(0xFFF7F7F7)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     modifier: Modifier = Modifier,
-    onRegisterClick: () -> Unit = {}, // Navegar tras registro
-    onLoginClick: () -> Unit = {}     // Volver a login
+    onRegisterClick: () -> Unit = {},
+    onLoginClick: () -> Unit = {}
 ) {
-    // 🔹 Campos
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // 🔹 ViewModel
     val viewModel: AuthViewModel = viewModel()
-
-    // 🔹 Snackbar
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    // 🧱 Fondo blanco con esquinas decorativas
-    BoxWithConstraints(
+    val cornerImageSize = 350.dp
+    val imageOffset = cornerImageSize / 3.5f
+
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .background(White)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(White, BackgroundGray)
+                )
+            )
     ) {
-        val cornerSize = maxWidth * 0.78f
-        val overlap = cornerSize * 0.24f
-
-        // 🟢 Esquinas decorativas
         Image(
             painter = painterResource(id = R.drawable.esquina3),
             contentDescription = null,
+            colorFilter = ColorFilter.tint(JuntateGreen),
             modifier = Modifier
+                .size(cornerImageSize)
                 .align(Alignment.TopStart)
-                .size(cornerSize)
-                .offset(x = -overlap, y = -overlap),
-            contentScale = ContentScale.Fit,
-            alpha = 0.25f
+                .offset(x = -imageOffset, y = -imageOffset)
+                .alpha(0.35f)
         )
 
         Image(
             painter = painterResource(id = R.drawable.esquina4),
             contentDescription = null,
+            colorFilter = ColorFilter.tint(JuntateGreen),
             modifier = Modifier
+                .size(cornerImageSize)
                 .align(Alignment.BottomEnd)
-                .size(cornerSize)
-                .offset(x = overlap, y = overlap),
-            contentScale = ContentScale.Fit,
-            alpha = 0.25f
+                .offset(x = imageOffset, y = imageOffset)
+                .alpha(0.35f)
         )
 
-        // 🟩 Tarjeta central
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 32.dp)
+                .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFF095651))
-                    .padding(vertical = 36.dp, horizontal = 24.dp)
-                    .fillMaxWidth()
+            Card(
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = JuntateBackground),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-                    // 🟢 Logo
+                Column(
+                    modifier = Modifier.padding(vertical = 32.dp, horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_onboarding_logo),
-                        contentDescription = "Logo",
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(bottom = 16.dp)
+                        painter = painterResource(id = R.drawable.logoverde),
+                        contentDescription = "Logo de Juntate",
+                        colorFilter = ColorFilter.tint(White),
+                        modifier = Modifier.size(110.dp)
                     )
 
-                    // 🧾 Título
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     Text(
                         text = "Regístrate",
                         color = White,
-                        fontSize = 28.sp,
+                        fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 20.dp)
                     )
 
-                    // ✏️ Campos
-                    InputField(
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    AuthInputField(
                         value = name,
                         onValueChange = { name = it },
-                        placeholder = "Nombre completo"
+                        placeholder = "Nombre completo",
+                        keyboardType = KeyboardType.Text
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    InputField(
+                    AuthInputField(
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = "Correo electrónico"
+                        placeholder = "Correo electrónico",
+                        keyboardType = KeyboardType.Email
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    InputField(
+                    AuthInputField(
                         value = password,
                         onValueChange = { password = it },
                         placeholder = "Contraseña",
-                        isPassword = true
+                        isPassword = true,
+                        keyboardType = KeyboardType.Password
                     )
 
-                    // 📝 Texto intermedio
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     Text(
                         text = "O regístrate con",
                         color = White,
                         fontSize = 14.sp,
-                        modifier = Modifier.padding(vertical = 16.dp)
                     )
 
-                    // 🔗 Botones sociales
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
                     ) {
                         SocialButton(icon = R.drawable.google, text = "Google")
                         SocialButton(icon = R.drawable.facebook, text = "Facebook")
                     }
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp)
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
                     ) {
                         SocialButton(icon = R.drawable.instagram, text = "Instagram")
                         SocialButton(icon = R.drawable.apple, text = "Apple")
                     }
 
-                    // 🟩 Botón principal funcional con Firebase
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     Button(
                         onClick = {
                             if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
@@ -192,24 +197,24 @@ fun RegisterScreen(
                                 }
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryLightGreen),
-                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = JuntateGreen),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp)
-                            .padding(bottom = 20.dp)
                     ) {
                         Text(
                             text = "Crear cuenta",
                             color = White,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
 
-                    // 🔁 Enlace para volver a iniciar sesión
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     Row(
-                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.clickable { onLoginClick() },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
@@ -219,27 +224,26 @@ fun RegisterScreen(
                         )
                         Text(
                             text = "Inicia sesión",
-                            color = AccentPurple,
+                            color = JuntateGreen,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
-                            modifier = Modifier.clickable { onLoginClick() }
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    SnackbarHost(hostState = snackbarHostState)
                 }
             }
         }
     }
+    SnackbarHost(hostState = snackbarHostState, modifier = Modifier.fillMaxWidth().wrapContentHeight(Alignment.Bottom))
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InputField(
+fun AuthInputField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text
 ) {
     OutlinedTextField(
         value = value,
@@ -247,46 +251,64 @@ fun InputField(
         placeholder = { Text(placeholder, color = MediumGray) },
         singleLine = true,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(White),
-        textStyle = TextStyle(fontSize = 16.sp)
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        shape = RoundedCornerShape(12.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = White,
+            focusedContainerColor = White,
+            unfocusedBorderColor = Color.Transparent,
+            focusedBorderColor = JuntateGreen
+        ),
+        modifier = Modifier.fillMaxWidth(),
+        textStyle = TextStyle(fontSize = 16.sp, color = Black)
     )
 }
 
 @Composable
 fun SocialButton(icon: Int, text: String) {
-    Box(
+    OutlinedButton(
+        onClick = { /* TODO: Implementar login social */ },
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = White,
+            contentColor = JuntateBackground
+        ),
+        border = BorderStroke(1.dp, BorderGray),
+        contentPadding = PaddingValues(horizontal = 12.dp),
         modifier = Modifier
             .width(140.dp)
-            .height(45.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .border(1.dp, Color(0xFF8D8D8D), RoundedCornerShape(10.dp))
-            .background(White),
-        contentAlignment = Alignment.Center
+            .height(48.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = icon),
-                contentDescription = text,
-                modifier = Modifier
-                    .size(22.dp)
-                    .padding(end = 6.dp)
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Box(
+                modifier = Modifier.width(24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = icon),
+                    contentDescription = text,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = text,
-                color = Color(0xFF195E5A),
-                fontSize = 14.sp
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium
             )
         }
     }
 }
 
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RegisterScreenPreview() {
-    RegisterScreen()
+    MaterialTheme {
+        RegisterScreen()
+    }
 }

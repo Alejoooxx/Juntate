@@ -10,97 +10,110 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.juntate.R
+import com.example.juntate.ui.theme.PrimaryGreen
+import com.example.juntate.ui.theme.PrimaryLightGreen
 
 @Composable
 fun OnboardingScreen(
     modifier: Modifier = Modifier,
-    onStartClick: () -> Unit = {} // ✅ callback que redirige al LoginScreen
+    onStartClick: () -> Unit = {}
 ) {
+    val darkerGreen = Color(0xFF166660)
+    val peopleImageHeight = 280.dp
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF247C78), Color(0xFF095651))
+                    colors = listOf(PrimaryGreen, darkerGreen)
                 )
             ),
+        // ✅ Se quita el padding horizontal de aquí para permitir que la imagen se expanda.
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(50.dp))
 
-        // 🟢 Logo principal
-        Image(
-            painter = painterResource(id = R.drawable.ic_onboarding_logo),
-            contentDescription = "Logo Onboarding",
-            contentScale = ContentScale.Fit,
+        // --- Sección Superior (Logo y Texto) ---
+        Column(
             modifier = Modifier
-                .size(280.dp)
-                .padding(bottom = 5.dp)
-        )
-
-        // 📝 Texto centrado
-        Text(
-            text = "Encuentra tu equipo,\nentrena acompañado.",
-            color = Color.White,
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold,
-            lineHeight = 28.sp,
-            modifier = Modifier
-                .padding(horizontal = 50.dp)
-                .padding(bottom = 35.dp)
-        )
-
-        // 🏃‍♀️ Imagen principal
-        Image(
-            painter = painterResource(id = R.drawable.ic_onboarding_people),
-            contentDescription = "Personas entrenando",
-            contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(220.dp)
-                .padding(bottom = 40.dp)
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // 🟩 Botón inferior con callback funcional
-        Button(
-            onClick = {
-                onStartClick() // ✅ Ejecuta el callback para navegar al LoginScreen
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF41A38E)),
-            shape = RoundedCornerShape(20.dp),
-            modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .height(55.dp)
-                .clip(RoundedCornerShape(20.dp))
+                .weight(1.2f)
+                // ✅ Se añade el padding aquí directamente.
+                .padding(horizontal = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom
         ) {
+            Image(
+                painter = painterResource(id = R.drawable.logoverde),
+                contentDescription = "Logo de Juntate",
+                colorFilter = ColorFilter.tint(Color.White),
+                modifier = Modifier.size(140.dp)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Empezar ahora",
-                fontSize = 18.sp,
+                text = "Encuentra tu equipo,\nentrena acompañado.",
+                color = Color.White,
+                fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                lineHeight = 40.sp,
+                textAlign = TextAlign.Center
             )
         }
 
-        Spacer(modifier = Modifier.height(80.dp))
+        // --- Sección Central (Ilustración) ---
+        Image(
+            painter = painterResource(id = R.drawable.ic_onboarding_people),
+            contentDescription = "Personas entrenando",
+            modifier = Modifier
+                // ✅ fillMaxWidth() ahora funciona sobre el ancho completo de la pantalla.
+                .fillMaxWidth()
+                .height(peopleImageHeight)
+                .weight(1.2f, fill = false)
+                .padding(vertical = 24.dp)
+        )
+
+        // --- Sección Inferior (Botón) ---
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                // ✅ Se añade el padding aquí también.
+                .padding(horizontal = 32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Button(
+                onClick = onStartClick,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrimaryLightGreen
+                ),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(55.dp)
+            ) {
+                Text(
+                    text = "Empezar ahora",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
     }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun OnboardingScreenPreview() {
-    OnboardingScreen(
-        onStartClick = { /* 🔄 Simulación de navegación al LoginScreen */ }
-    )
+    androidx.compose.material3.MaterialTheme {
+        OnboardingScreen()
+    }
 }

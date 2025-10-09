@@ -2,7 +2,7 @@ package com.example.juntate.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// 🎨 Paleta principal (según tus capturas)
+// 🎨 Paleta principal
 val PrimaryGreen = Color(0xFF247C78)
 val PrimaryLightGreen = Color(0xFF41A38E)
 val SecondaryGray = Color(0xFF4C5958)
@@ -15,3 +15,5 @@ val MutedGreen = Color(0xFF8AA6A3)
 
 val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
+
+val BorderGray = Color(0xFFE0E0E0)
