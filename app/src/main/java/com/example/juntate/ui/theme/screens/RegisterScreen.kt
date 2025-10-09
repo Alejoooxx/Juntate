@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -32,54 +31,50 @@ import com.example.juntate.ui.theme.*
 import com.example.juntate.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
-val BackgroundGray = Color(0xFFF7F7F7)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     modifier: Modifier = Modifier,
-    onRegisterClick: () -> Unit = {},
+    onRegisterSuccess: (String) -> Unit = {},
     onLoginClick: () -> Unit = {}
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
+    var isLoading by remember { mutableStateOf(false) }
     val viewModel: AuthViewModel = viewModel()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    val cornerImageSize = 350.dp
-    val imageOffset = cornerImageSize / 3.5f
-
+    // Estructura Visual
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(White, BackgroundGray)
+                    colors = listOf(White, LightGray)
                 )
             )
     ) {
         Image(
             painter = painterResource(id = R.drawable.esquina3),
             contentDescription = null,
-            colorFilter = ColorFilter.tint(JuntateGreen),
+            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(JuntateGreen),
             modifier = Modifier
-                .size(cornerImageSize)
+                .size(350.dp)
                 .align(Alignment.TopStart)
-                .offset(x = -imageOffset, y = -imageOffset)
+                .offset(x = -(350.dp / 3.5f), y = -(350.dp / 3.5f))
                 .alpha(0.35f)
         )
 
         Image(
             painter = painterResource(id = R.drawable.esquina4),
             contentDescription = null,
-            colorFilter = ColorFilter.tint(JuntateGreen),
+            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(JuntateGreen),
             modifier = Modifier
-                .size(cornerImageSize)
+                .size(350.dp)
                 .align(Alignment.BottomEnd)
-                .offset(x = imageOffset, y = imageOffset)
+                .offset(x = (350.dp / 3.5f), y = (350.dp / 3.5f))
                 .alpha(0.35f)
         )
 
@@ -104,21 +99,17 @@ fun RegisterScreen(
                     Image(
                         painter = painterResource(id = R.drawable.logoverde),
                         contentDescription = "Logo de Juntate",
-                        colorFilter = ColorFilter.tint(White),
+                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(White),
                         modifier = Modifier.size(110.dp)
                     )
-
                     Spacer(modifier = Modifier.height(24.dp))
-
                     Text(
                         text = "Regístrate",
                         color = White,
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                     )
-
                     Spacer(modifier = Modifier.height(32.dp))
-
                     AuthInputField(
                         value = name,
                         onValueChange = { name = it },
@@ -126,7 +117,6 @@ fun RegisterScreen(
                         keyboardType = KeyboardType.Text
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-
                     AuthInputField(
                         value = email,
                         onValueChange = { email = it },
@@ -134,7 +124,6 @@ fun RegisterScreen(
                         keyboardType = KeyboardType.Email
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-
                     AuthInputField(
                         value = password,
                         onValueChange = { password = it },
@@ -142,17 +131,13 @@ fun RegisterScreen(
                         isPassword = true,
                         keyboardType = KeyboardType.Password
                     )
-
                     Spacer(modifier = Modifier.height(24.dp))
-
                     Text(
                         text = "O regístrate con",
                         color = White,
                         fontSize = 14.sp,
                     )
-
                     Spacer(modifier = Modifier.height(16.dp))
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceAround
@@ -161,7 +146,6 @@ fun RegisterScreen(
                         SocialButton(icon = R.drawable.facebook, text = "Facebook")
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceAround
@@ -169,25 +153,25 @@ fun RegisterScreen(
                         SocialButton(icon = R.drawable.instagram, text = "Instagram")
                         SocialButton(icon = R.drawable.apple, text = "Apple")
                     }
-
                     Spacer(modifier = Modifier.height(24.dp))
 
+                    // Botón de Crear Cuenta
                     Button(
                         onClick = {
-                            if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                            if (name.isNotBlank() && email.isNotBlank() && password.isNotBlank()) {
+                                isLoading = true
                                 viewModel.registerUser(
-                                    name,
-                                    email,
-                                    password,
+                                    name = name.trim(),
+                                    email = email.trim(),
+                                    password = password,
                                     onSuccess = {
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar("Registro exitoso 🎉")
-                                        }
-                                        onRegisterClick()
+                                        isLoading = false
+                                        onRegisterSuccess("Registro Exitoso, puedes iniciar sesión.")
                                     },
-                                    onError = { error ->
+                                    onError = { errorMessage ->
+                                        isLoading = false
                                         coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(error)
+                                            snackbarHostState.showSnackbar(errorMessage)
                                         }
                                     }
                                 )
@@ -197,22 +181,26 @@ fun RegisterScreen(
                                 }
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = JuntateGreen),
+                        enabled = !isLoading,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = JuntateGreen
+                        ),
                         shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
+                        modifier = Modifier.fillMaxWidth().height(50.dp)
                     ) {
-                        Text(
-                            text = "Crear cuenta",
-                            color = White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        if (isLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = White)
+                        } else {
+                            Text(
+                                text = "Crear cuenta",
+                                color = White,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
-
                     Row(
                         modifier = Modifier.clickable { onLoginClick() },
                         verticalAlignment = Alignment.CenterVertically
@@ -232,9 +220,10 @@ fun RegisterScreen(
                 }
             }
         }
+        SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
     }
-    SnackbarHost(hostState = snackbarHostState, modifier = Modifier.fillMaxWidth().wrapContentHeight(Alignment.Bottom))
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

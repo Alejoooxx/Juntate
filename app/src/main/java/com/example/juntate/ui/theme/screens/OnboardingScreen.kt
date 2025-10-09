@@ -42,7 +42,7 @@ fun OnboardingScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        // Sección Superior (Logo y Texto)
+        //Sección Superior (Logo y Texto)
         Column(
             modifier = Modifier
                 .weight(1.2f)
@@ -67,7 +67,7 @@ fun OnboardingScreen(
             )
         }
 
-        // Sección Central (Ilustración)
+        //Sección Central (Ilustración)
         Image(
             painter = painterResource(id = R.drawable.ic_onboarding_people),
             contentDescription = "Personas entrenando",
@@ -78,7 +78,7 @@ fun OnboardingScreen(
                 .padding(vertical = 24.dp)
         )
 
-        // Sección Inferior (Botón)
+        //Sección Inferior (Botón)
         Box(
             modifier = Modifier
                 .weight(1f)

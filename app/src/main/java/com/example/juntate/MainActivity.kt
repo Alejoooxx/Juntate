@@ -5,143 +5,113 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.juntate.ui.theme.JuntateTheme
 import com.example.juntate.ui.theme.screens.*
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
 import com.google.firebase.FirebaseApp
 
-@OptIn(ExperimentalAnimationApi::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inicializar Firebase y verificar estado
-        val app = FirebaseApp.initializeApp(this)
-        if (app == null) {
-            Log.e("FirebaseInit", "Firebase no se inicializó correctamente.")
-        } else {
-            Log.i("FirebaseInit", "Firebase inicializado correctamente: ${app.name}")
-        }
+        FirebaseApp.initializeApp(this)
 
         enableEdgeToEdge()
 
         setContent {
             JuntateTheme {
+                val snackbarHostState = remember { SnackbarHostState() }
                 val navController = rememberNavController()
 
                 Scaffold(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    AppNavigation(navController = navController)
+                    modifier = Modifier.fillMaxSize(),
+                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+                ) { innerPadding ->
+                    AppNavigation(
+                        navController = navController,
+                        snackbarHostState = snackbarHostState,
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AppNavigation(navController: NavHostController) {
-    AnimatedNavHost(
+fun AppNavigation(
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState,
+    modifier: Modifier = Modifier
+) {
+    NavHost(
         navController = navController,
-        startDestination = "onboarding"
+        startDestination = "onboarding",
+        modifier = modifier
     ) {
-        // Onboarding
-        composable(
-            route = "onboarding",
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it },
-                    animationSpec = tween(500)
-                )
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -it },
-                    animationSpec = tween(500)
-                )
-            },
-            popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it },
-                    animationSpec = tween(500)
-                )
-            },
-            popExitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(500)
-                )
-            }
-        ) {
+        composable("onboarding") {
             OnboardingScreen(
-                onStartClick = {
-                    navController.navigate("login") {
-                        popUpTo("onboarding") { inclusive = true }
-                    }
-                }
+                onStartClick = { navController.navigate("login") }
             )
         }
 
-        // Login
         composable(
-            route = "login",
-            enterTransition = {
-                slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(500))
-            },
-            exitTransition = {
-                slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(500))
-            },
-            popEnterTransition = {
-                slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(500))
-            },
-            popExitTransition = {
-                slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(500))
+            route = "login?message={message}",
+            arguments = listOf(navArgument("message") {
+                type = NavType.StringType
+                nullable = true
+            })
+        ) { backStackEntry ->
+            val message = backStackEntry.arguments?.getString("message")
+            LaunchedEffect(message) {
+                message?.let {
+                    snackbarHostState.showSnackbar(it)
+                }
             }
-        ) {
             LoginScreen(
-                onLoginClick = {
+                onLoginSuccess = {
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true }
+                    }
                 },
-                onRegisterClick = {
-                    navController.navigate("register")
-                }
+                onRegisterClick = { navController.navigate("register") }
             )
         }
 
-        // Registro
-        composable(
-            route = "register",
-            enterTransition = {
-                slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(500))
-            },
-            exitTransition = {
-                slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(500))
-            },
-            popEnterTransition = {
-                slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(500))
-            },
-            popExitTransition = {
-                slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(500))
-            }
-        ) {
+        composable("register") {
             RegisterScreen(
-                onRegisterClick = {
+                onRegisterSuccess = { successMessage ->
+                    navController.navigate("login?message=$successMessage") {
+                        popUpTo("login") { inclusive = true }
+                    }
                 },
-                onLoginClick = {
-                    navController.popBackStack("login", inclusive = false)
-                }
+                onLoginClick = { navController.popBackStack() }
             )
+        }
+
+        composable("home") {
+            HomeScreen(navController = navController)
+        }
+
+        composable("profile") {
+            ProfileScreen()
         }
     }
 }
