@@ -9,12 +9,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -22,62 +20,74 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.juntate.R
-import com.example.juntate.ui.theme.JuntateBackground
-import com.example.juntate.ui.theme.PrimaryGreen
+import com.example.juntate.ui.theme.*
 
+// Color para el brillo sutil de las tarjetas
 val CardShineColor = Color(0x33FFFFFF) // Blanco con baja opacidad
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
     Scaffold(
-        // Barra de navegación inferior
         bottomBar = { BottomNavigationBar() }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
-                .padding(innerPadding) // Padding automático del Scaffold
+                .padding(innerPadding)
                 .fillMaxSize()
-                .background(JuntateBackground),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(White, TextGray)
+                    )
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(vertical = 16.dp)
         ) {
-            // Encabezado
+            // --- Encabezado Verde ---
             item {
-                Text(
-                    text = "¿Qué quieres\npracticar hoy?",
-                    color = Color.White,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 40.sp,
-                    modifier = Modifier.padding(vertical = 32.dp)
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(PrimaryGreen)
+                        .padding(top = 10.dp, bottom = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "¿Qué quieres practicar \nhoy?",
+                        color = Color.White,
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 30.sp
+                    )
+                }
             }
 
-            // Tarjetas de Deportes
+            // --- Tarjetas de Deportes ---
             item {
                 SportCard(
                     text = "Fútbol",
-                    imageResId = R.drawable.ic_futbol, // Carga de Imagenes
-                    imageAlignment = Alignment.CenterStart
+                    imageResId = R.drawable.ic_futbol,
+                    imageAlignment = Alignment.CenterStart,
+                    cardColor = PrimaryGreen
                 )
             }
             item {
                 SportCard(
                     text = "Running",
                     imageResId = R.drawable.ic_running,
-                    imageAlignment = Alignment.CenterEnd
+                    imageAlignment = Alignment.CenterEnd,
+                    cardColor = PrimaryGreen
                 )
             }
             item {
                 SportCard(
                     text = "Gym",
                     imageResId = R.drawable.ic_gym,
-                    imageAlignment = Alignment.CenterStart
+                    imageAlignment = Alignment.CenterStart,
+                    cardColor = PrimaryGreen
                 )
-            }
-            item {
-                Spacer(modifier = Modifier.height(16.dp)) // Espacio final
             }
         }
     }
@@ -87,54 +97,62 @@ fun HomeScreen() {
 fun SportCard(
     text: String,
     imageResId: Int,
+    cardColor: Color,
     imageAlignment: Alignment = Alignment.CenterStart
 ) {
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(24.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 8.dp)
-            .height(160.dp) // Altura consistente para todas las tarjetas
+            .padding(horizontal = 24.dp)
+            .height(190.dp)
             .clickable { /* TODO: Navegar a la pantalla del deporte */ },
-        colors = CardDefaults.cardColors(containerColor = PrimaryGreen)
+        colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Brillo sutil en la tarjeta
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.7f)
+                    .fillMaxWidth(0.8f)
                     .fillMaxHeight()
                     .align(imageAlignment)
                     .background(
                         brush = Brush.radialGradient(
                             colors = listOf(CardShineColor, Color.Transparent),
-                            radius = 300f
+                            radius = 400f
                         )
                     )
             )
 
-            // Imagen del deportista
             Image(
                 painter = painterResource(id = imageResId),
                 contentDescription = text,
-                contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .fillMaxHeight(0.9f)
+                    .fillMaxHeight(1f)
+                    .fillMaxWidth(0.7f)
                     .align(imageAlignment)
-                    .padding(horizontal = 16.dp)
+                    .offset(
+                        x = if (imageAlignment == Alignment.CenterStart) (-20).dp else 20.dp
+                    )
             )
 
-            // Texto del deporte
+            // ✅ ÚNICO CAMBIO: Se ajusta la alineación del texto
+            val textAlignment = if (imageAlignment == Alignment.CenterStart) {
+                // Si la imagen está a la izquierda, el texto se alinea un 50% hacia la derecha del centro.
+                BiasAlignment(horizontalBias = 0.5f, verticalBias = 0f)
+            } else {
+                // Si la imagen está a la derecha, el texto se alinea un 50% hacia la izquierda del centro.
+                BiasAlignment(horizontalBias = -0.5f, verticalBias = 0f)
+            }
+
             Text(
                 text = text,
                 color = Color.White,
-                fontSize = 30.sp,
+                fontSize = 34.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .align(if (imageAlignment == Alignment.CenterStart) Alignment.CenterEnd else Alignment.CenterStart)
-                    .padding(horizontal = 32.dp)
+                    .align(textAlignment)
             )
         }
     }
@@ -143,9 +161,9 @@ fun SportCard(
 @Composable
 fun BottomNavigationBar() {
     NavigationBar(
-        containerColor = JuntateBackground,
+        containerColor = PrimaryGreen,
         contentColor = Color.White,
-        modifier = Modifier.height(70.dp)
+        modifier = Modifier.height(80.dp)
     ) {
         NavigationBarItem(
             selected = false,
@@ -153,13 +171,13 @@ fun BottomNavigationBar() {
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_book),
-                    contentDescription = "Historial",
-                    modifier = Modifier.size(30.dp)
+                    contentDescription = "History",
+                    modifier = Modifier.size(32.dp)
                 )
             },
             colors = NavigationBarItemDefaults.colors(
                 unselectedIconColor = Color.White,
-                indicatorColor = PrimaryGreen
+                indicatorColor = PrimaryLightGreen
             )
         )
         NavigationBarItem(
@@ -169,12 +187,12 @@ fun BottomNavigationBar() {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_home),
                     contentDescription = "Home",
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(42.dp)
                 )
             },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color.White,
-                indicatorColor = PrimaryGreen
+                indicatorColor = PrimaryLightGreen
             )
         )
         NavigationBarItem(
@@ -183,13 +201,13 @@ fun BottomNavigationBar() {
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_profile),
-                    contentDescription = "Perfil",
-                    modifier = Modifier.size(30.dp)
+                    contentDescription = "Profile",
+                    modifier = Modifier.size(42.dp)
                 )
             },
             colors = NavigationBarItemDefaults.colors(
                 unselectedIconColor = Color.White,
-                indicatorColor = PrimaryGreen
+                indicatorColor = PrimaryLightGreen
             )
         )
     }
