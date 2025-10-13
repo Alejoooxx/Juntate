@@ -29,7 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.juntate.R
 import com.example.juntate.ui.theme.*
 import com.example.juntate.viewmodel.AuthViewModel
-import com.example.juntate.viewmodel.AuthState
+// ⛔️ Se elimina la importación de AuthState que ya no se usa
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,34 +42,24 @@ fun RegisterScreen(
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    // ✅ Se añade un estado de carga local
+    var isLoading by remember { mutableStateOf(false) }
 
     val viewModel: AuthViewModel = viewModel()
-    val authState by viewModel.authState.collectAsState()
+    // ⛔️ Se elimina la observación del StateFlow
+    // val authState by viewModel.authState.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    // --- Lógica de Feedback (Simplificada) ---
+    // ⛔️ Se elimina el LaunchedEffect que manejaba la lógica de forma incorrecta
+    /*
     LaunchedEffect(authState) {
-        when (val state = authState) {
-            is AuthState.Success -> {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar("Creado con exito")
-                }
-                viewModel.resetAuthState() // Limpia el estado
-            }
-            is AuthState.Error, is AuthState.EmailAlreadyExists -> {
-                val message = if (state is AuthState.Error) state.message else (state as AuthState.EmailAlreadyExists).message
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(message)
-                }
-                viewModel.resetAuthState() // Limpia el estado
-            }
-            else -> {}
-        }
+        // ...
     }
+    */
 
-    // Estructura Visual
+    // Estructura Visual (SIN CAMBIOS)
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -178,11 +168,26 @@ fun RegisterScreen(
                     }
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // --- Botón de Crear Cuenta (Simplificado) ---
+                    // --- Botón de Crear Cuenta con lógica corregida ---
                     Button(
                         onClick = {
                             if (name.isNotBlank() && email.isNotBlank() && password.isNotBlank()) {
-                                viewModel.registerUser(name.trim(), email.trim(), password)
+                                isLoading = true // Iniciar carga
+                                viewModel.registerUser(
+                                    name = name.trim(),
+                                    email = email.trim(),
+                                    password = password,
+                                    onSuccess = {
+                                        isLoading = false // Finalizar carga
+                                        onRegisterSuccess("Registro Exitoso, puedes iniciar sesión.")
+                                    },
+                                    onError = { errorMessage ->
+                                        isLoading = false // Finalizar carga
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(errorMessage)
+                                        }
+                                    }
+                                )
                             } else {
                                 coroutineScope.launch {
                                     snackbarHostState.showSnackbar("Completa todos los campos.")
@@ -190,7 +195,7 @@ fun RegisterScreen(
                             }
                         },
                         // El botón solo se deshabilita cuando está cargando
-                        enabled = authState !is AuthState.Loading,
+                        enabled = !isLoading,
                         //  Color para el Boton
                         colors = ButtonDefaults.buttonColors(
                             containerColor = JuntateGreen
@@ -198,7 +203,7 @@ fun RegisterScreen(
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth().height(50.dp)
                     ) {
-                        if (authState is AuthState.Loading) {
+                        if (isLoading) {
                             CircularProgressIndicator(modifier = Modifier.size(24.dp), color = White)
                         } else {
                             Text(

@@ -111,7 +111,13 @@ fun AppNavigation(
         }
 
         composable("home") {
-            HomeScreen()
+            // ✅ CAMBIO 1: Se pasa el navController a la HomeScreen
+            HomeScreen(navController = navController)
+        }
+
+        // ✅ CAMBIO 2: Se añade la nueva ruta para el perfil
+        composable("profile") {
+            ProfileScreen()
         }
     }
 }

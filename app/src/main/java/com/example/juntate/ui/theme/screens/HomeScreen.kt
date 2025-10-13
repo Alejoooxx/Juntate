@@ -19,6 +19,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+// ✅ Se añade la importación necesaria
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.juntate.R
 import com.example.juntate.ui.theme.*
 
@@ -27,9 +30,12 @@ val CardShineColor = Color(0x33FFFFFF) // Blanco con baja opacidad
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavHostController) { // ✅ Se añade el parámetro
     Scaffold(
-        bottomBar = { BottomNavigationBar() }
+        bottomBar = {
+            // ✅ Se pasa el navController a la barra de navegación
+            BottomNavigationBar(navController = navController)
+        }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -137,12 +143,9 @@ fun SportCard(
                     )
             )
 
-            // ✅ ÚNICO CAMBIO: Se ajusta la alineación del texto
             val textAlignment = if (imageAlignment == Alignment.CenterStart) {
-                // Si la imagen está a la izquierda, el texto se alinea un 50% hacia la derecha del centro.
                 BiasAlignment(horizontalBias = 0.5f, verticalBias = 0f)
             } else {
-                // Si la imagen está a la derecha, el texto se alinea un 50% hacia la izquierda del centro.
                 BiasAlignment(horizontalBias = -0.5f, verticalBias = 0f)
             }
 
@@ -159,7 +162,7 @@ fun SportCard(
 }
 
 @Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar(navController: NavHostController) { // ✅ Se añade el parámetro
     NavigationBar(
         containerColor = PrimaryGreen,
         contentColor = Color.White,
@@ -197,7 +200,10 @@ fun BottomNavigationBar() {
         )
         NavigationBarItem(
             selected = false,
-            onClick = { /* TODO */ },
+            onClick = {
+                // ✅ Se añade la acción de navegación
+                navController.navigate("profile")
+            },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_profile),
@@ -217,6 +223,7 @@ fun BottomNavigationBar() {
 @Composable
 fun HomeScreenPreview() {
     MaterialTheme {
-        HomeScreen()
+        // ✅ Se añade un NavController de prueba para la preview
+        HomeScreen(navController = rememberNavController())
     }
 }
