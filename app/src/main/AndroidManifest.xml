@@ -15,7 +15,12 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Juntate">
+            android:theme="@style/Theme.Juntate"
+
+            android:screenOrientation="portrait"
+
+            tools:ignore="LockedOrientationActivity">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

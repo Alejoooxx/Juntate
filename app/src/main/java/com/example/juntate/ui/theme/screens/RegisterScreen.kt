@@ -29,7 +29,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.juntate.R
 import com.example.juntate.ui.theme.*
 import com.example.juntate.viewmodel.AuthViewModel
-// ⛔️ Se elimina la importación de AuthState que ya no se usa
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,24 +41,12 @@ fun RegisterScreen(
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    // ✅ Se añade un estado de carga local
     var isLoading by remember { mutableStateOf(false) }
 
     val viewModel: AuthViewModel = viewModel()
-    // ⛔️ Se elimina la observación del StateFlow
-    // val authState by viewModel.authState.collectAsState()
-
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    // ⛔️ Se elimina el LaunchedEffect que manejaba la lógica de forma incorrecta
-    /*
-    LaunchedEffect(authState) {
-        // ...
-    }
-    */
-
-    // Estructura Visual (SIN CAMBIOS)
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -151,55 +138,64 @@ fun RegisterScreen(
                         fontSize = 14.sp,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
+
+                    // ✅ ÚNICO CAMBIO: Se ajusta el Arrangement y se usa .weight(1f)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround
+                        horizontalArrangement = Arrangement.spacedBy(16.dp) // Espacio fijo entre botones
                     ) {
-                        SocialButton(icon = R.drawable.google, text = "Google")
-                        SocialButton(icon = R.drawable.facebook, text = "Facebook")
+                        SocialButton(
+                            modifier = Modifier.weight(1f), // Ocupa la mitad del espacio
+                            icon = R.drawable.google,
+                            text = "Google"
+                        )
+                        SocialButton(
+                            modifier = Modifier.weight(1f), // Ocupa la otra mitad
+                            icon = R.drawable.facebook,
+                            text = "Facebook"
+                        )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        SocialButton(icon = R.drawable.instagram, text = "Instagram")
-                        SocialButton(icon = R.drawable.apple, text = "Apple")
+                        SocialButton(
+                            modifier = Modifier.weight(1f),
+                            icon = R.drawable.instagram,
+                            text = "Instagram"
+                        )
+                        SocialButton(
+                            modifier = Modifier.weight(1f),
+                            icon = R.drawable.apple,
+                            text = "Apple"
+                        )
                     }
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // --- Botón de Crear Cuenta con lógica corregida ---
                     Button(
                         onClick = {
                             if (name.isNotBlank() && email.isNotBlank() && password.isNotBlank()) {
-                                isLoading = true // Iniciar carga
+                                isLoading = true
                                 viewModel.registerUser(
                                     name = name.trim(),
                                     email = email.trim(),
                                     password = password,
                                     onSuccess = {
-                                        isLoading = false // Finalizar carga
+                                        isLoading = false
                                         onRegisterSuccess("Registro Exitoso, puedes iniciar sesión.")
                                     },
                                     onError = { errorMessage ->
-                                        isLoading = false // Finalizar carga
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(errorMessage)
-                                        }
+                                        isLoading = false
+                                        coroutineScope.launch { snackbarHostState.showSnackbar(errorMessage) }
                                     }
                                 )
                             } else {
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar("Completa todos los campos.")
-                                }
+                                coroutineScope.launch { snackbarHostState.showSnackbar("Completa todos los campos.") }
                             }
                         },
-                        // El botón solo se deshabilita cuando está cargando
                         enabled = !isLoading,
-                        //  Color para el Boton
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = JuntateGreen
-                        ),
+                        colors = ButtonDefaults.buttonColors(containerColor = JuntateGreen),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth().height(50.dp)
                     ) {
@@ -214,17 +210,12 @@ fun RegisterScreen(
                             )
                         }
                     }
-
                     Spacer(modifier = Modifier.height(24.dp))
                     Row(
                         modifier = Modifier.clickable { onLoginClick() },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "¿Ya tienes una cuenta? ",
-                            color = White,
-                            fontSize = 14.sp
-                        )
+                        Text(text = "¿Ya tienes una cuenta? ", color = White, fontSize = 14.sp)
                         Text(
                             text = "Inicia sesión",
                             color = JuntateGreen,
@@ -239,8 +230,6 @@ fun RegisterScreen(
     }
 }
 
-
-// --- Componentes Auxiliares (Sin cambios) ---
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -271,7 +260,11 @@ fun AuthInputField(
 }
 
 @Composable
-fun SocialButton(icon: Int, text: String) {
+fun SocialButton(
+    modifier: Modifier = Modifier, // ✅ Se añade el modifier como parámetro
+    icon: Int,
+    text: String
+) {
     OutlinedButton(
         onClick = { /* TODO: Implementar login social */ },
         shape = RoundedCornerShape(12.dp),
@@ -281,25 +274,19 @@ fun SocialButton(icon: Int, text: String) {
         ),
         border = BorderStroke(1.dp, BorderGray),
         contentPadding = PaddingValues(horizontal = 12.dp),
-        modifier = Modifier
-            .width(140.dp)
+        modifier = modifier // ✅ Se aplica el modifier pasado desde fuera
             .height(48.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Center // Centra el ícono y texto dentro del botón
         ) {
-            Box(
-                modifier = Modifier.width(24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = icon),
-                    contentDescription = text,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
+            Image(
+                painter = painterResource(id = icon),
+                contentDescription = text,
+                modifier = Modifier.size(22.dp)
+            )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = text,
