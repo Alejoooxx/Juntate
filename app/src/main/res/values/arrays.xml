@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    //Lista localidades
+    <string-array name="bogota_localities">
+        <item>Antonio Nariño</item>
+        <item>Barrios Unidos</item>
+        <item>Bogotá D.C</item>
+        <item>Bosa</item>
+        <item>Chapinero</item>
+        <item>Ciudad Bolívar</item>
+        <item>Engativá</item>
+        <item>Fontibón</item>
+        <item>Kennedy</item>
+        <item>La Candelaria</item>
+        <item>Los Mártires</item>
+        <item>Puente Aranda</item>
+        <item>Rafael Uribe Uribe</item>
+        <item>San Cristóbal</item>
+        <item>Santa Fe</item>
+        <item>Suba</item>
+        <item>Sumapaz</item>
+        <item>Teusaquillo</item>
+        <item>Tunjuelito</item>
+        <item>Usaquén</item>
+        <item>Usme</item>
+    </string-array>
+</resources>

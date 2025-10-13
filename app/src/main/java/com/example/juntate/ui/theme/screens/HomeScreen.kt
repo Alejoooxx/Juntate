@@ -1,14 +1,13 @@
 package com.example.juntate.ui.theme.screens
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -18,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,15 +29,15 @@ import com.example.juntate.R
 import com.example.juntate.ui.theme.*
 
 data class Sport(
-    val name: String,
+    @StringRes val nameResId: Int,
     val imageResId: Int,
     val imageAlignment: Alignment
 )
 
 val sportsList = listOf(
-    Sport("Fútbol", R.drawable.ic_futbol, Alignment.CenterStart),
-    Sport("Running", R.drawable.ic_running, Alignment.CenterEnd),
-    Sport("Gym", R.drawable.ic_gym, Alignment.CenterStart)
+    Sport(R.string.sport_soccer, R.drawable.ic_futbol, Alignment.CenterStart),
+    Sport(R.string.sport_running, R.drawable.ic_running, Alignment.CenterEnd),
+    Sport(R.string.sport_gym, R.drawable.ic_gym, Alignment.CenterStart)
 )
 
 val CardShineColor = Color(0x33FFFFFF)
@@ -45,23 +45,29 @@ val CardShineColor = Color(0x33FFFFFF)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    Scaffold(
-        bottomBar = { BottomNavigationBar(navController = navController) }
-    ) { innerPadding ->
-        BoxWithConstraints(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(White, TextGray)
-                    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(White, TextGray)
                 )
-        ) {
-            if (maxWidth < 600.dp) {
-                PhoneLayout()
-            } else {
-                TabletLayout()
+            )
+    ) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            bottomBar = { BottomNavigationBar(navController = navController) }
+        ) { innerPadding ->
+            BoxWithConstraints(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            ) {
+                if (maxWidth < 600.dp) {
+                    PhoneLayout()
+                } else {
+                    TabletLayout()
+                }
             }
         }
     }
@@ -69,22 +75,31 @@ fun HomeScreen(navController: NavHostController) {
 
 @Composable
 fun PhoneLayout() {
-    LazyColumn(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(top = 16.dp)
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item { Header() }
-        items(sportsList) { sport ->
-            SportCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-                text = sport.name,
-                imageResId = sport.imageResId,
-                imageAlignment = sport.imageAlignment,
-                cardColor = PrimaryGreen
-            )
+        Header()
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            sportsList.forEach { sport ->
+                SportCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    nameResId = sport.nameResId,
+                    imageResId = sport.imageResId,
+                    imageAlignment = sport.imageAlignment,
+                    cardColor = PrimaryGreen
+                )
+            }
         }
     }
 }
@@ -102,7 +117,7 @@ fun TabletLayout() {
             items(sportsList) { sport ->
                 SportCard(
                     modifier = Modifier.height(220.dp),
-                    text = sport.name,
+                    nameResId = sport.nameResId,
                     imageResId = sport.imageResId,
                     imageAlignment = sport.imageAlignment,
                     cardColor = PrimaryGreen
@@ -118,16 +133,17 @@ fun Header() {
         modifier = Modifier
             .fillMaxWidth()
             .background(PrimaryGreen)
-            .padding(top = 10.dp, bottom = 10.dp),
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "¿Qué quieres practicar \nhoy?",
+            text = stringResource(id = R.string.home_header_title),
             color = Color.White,
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            lineHeight = 30.sp
+            lineHeight = 32.sp
         )
     }
 }
@@ -135,16 +151,15 @@ fun Header() {
 @Composable
 fun SportCard(
     modifier: Modifier = Modifier,
-    text: String,
+    @StringRes nameResId: Int,
     imageResId: Int,
     cardColor: Color,
     imageAlignment: Alignment = Alignment.CenterStart
 ) {
+    val text = stringResource(id = nameResId)
     Card(
         shape = RoundedCornerShape(24.dp),
-        modifier = modifier
-            .height(190.dp)
-            .clickable { },
+        modifier = modifier.clickable { },
         colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Box(
@@ -201,11 +216,11 @@ fun BottomNavigationBar(navController: NavHostController) {
     ) {
         NavigationBarItem(
             selected = false,
-            onClick = { },
+            onClick = { /* TODO */ },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_book),
-                    contentDescription = "History",
+                    contentDescription = stringResource(id = R.string.bottom_nav_history),
                     modifier = Modifier.size(32.dp)
                 )
             },
@@ -216,11 +231,11 @@ fun BottomNavigationBar(navController: NavHostController) {
         )
         NavigationBarItem(
             selected = true,
-            onClick = { },
+            onClick = { /* TODO */ },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_home),
-                    contentDescription = "Home",
+                    contentDescription = stringResource(id = R.string.bottom_nav_home),
                     modifier = Modifier.size(42.dp)
                 )
             },
@@ -237,7 +252,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_profile),
-                    contentDescription = "Profile",
+                    contentDescription = stringResource(id = R.string.bottom_nav_profile),
                     modifier = Modifier.size(42.dp)
                 )
             },

@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -48,6 +49,7 @@ fun LoginScreen(
     val viewModel: AuthViewModel = viewModel()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val emptyFieldsMessage = stringResource(id = R.string.login_error_empty_fields)
 
     val cornerImageSize = 350.dp
     val imageOffset = cornerImageSize / 3
@@ -85,7 +87,6 @@ fun LoginScreen(
                 password = password,
                 isLoading = isLoading,
                 passwordVisible = passwordVisible,
-                snackbarHostState = snackbarHostState,
                 onEmailChange = { email = it },
                 onPasswordChange = { password = it },
                 onPasswordVisibilityChange = { passwordVisible = it },
@@ -105,7 +106,7 @@ fun LoginScreen(
                             }
                         )
                     } else {
-                        coroutineScope.launch { snackbarHostState.showSnackbar("Por favor, completa ambos campos.") }
+                        coroutineScope.launch { snackbarHostState.showSnackbar(emptyFieldsMessage) }
                     }
                 },
                 onRegisterClick = onRegisterClick
@@ -119,7 +120,6 @@ fun LoginScreen(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginContent(
@@ -128,7 +128,6 @@ fun LoginContent(
     password: String,
     isLoading: Boolean,
     passwordVisible: Boolean,
-    snackbarHostState: SnackbarHostState,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onPasswordVisibilityChange: (Boolean) -> Unit,
@@ -152,12 +151,12 @@ fun LoginContent(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.logoverde),
-                    contentDescription = "Logo de Juntate",
+                    contentDescription = stringResource(id = R.string.login_logo_description),
                     modifier = Modifier.size(90.dp)
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "Iniciar Sesión",
+                    text = stringResource(id = R.string.login_title),
                     color = Black,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
@@ -168,7 +167,7 @@ fun LoginContent(
                 OutlinedTextField(
                     value = email,
                     onValueChange = onEmailChange,
-                    placeholder = { Text("Correo electrónico", color = MediumGray) },
+                    placeholder = { Text(stringResource(id = R.string.login_placeholder_email), color = MediumGray) },
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedContainerColor = LightGray,
@@ -185,7 +184,7 @@ fun LoginContent(
                 OutlinedTextField(
                     value = password,
                     onValueChange = onPasswordChange,
-                    placeholder = { Text("Contraseña", color = MediumGray) },
+                    placeholder = { Text(stringResource(id = R.string.login_placeholder_password), color = MediumGray) },
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedContainerColor = LightGray,
@@ -198,7 +197,7 @@ fun LoginContent(
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         val image = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
-                        val description = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                        val description = if (passwordVisible) stringResource(id = R.string.login_hide_password_description) else stringResource(id = R.string.login_show_password_description)
                         IconButton(onClick = { onPasswordVisibilityChange(!passwordVisible) }) {
                             Icon(imageVector = image, description)
                         }
@@ -209,10 +208,10 @@ fun LoginContent(
                 Spacer(modifier = Modifier.height(16.dp))
                 Box(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "¿Olvidaste tu contraseña?",
+                        text = stringResource(id = R.string.login_forgot_password),
                         color = TextGray,
                         fontSize = 14.sp,
-                        modifier = Modifier.align(Alignment.Center).clickable { }
+                        modifier = Modifier.align(Alignment.Center).clickable { /* TODO */ }
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
@@ -227,7 +226,7 @@ fun LoginContent(
                         CircularProgressIndicator(color = White, modifier = Modifier.size(24.dp))
                     } else {
                         Text(
-                            text = "Iniciar sesión",
+                            text = stringResource(id = R.string.login_button),
                             color = White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold
@@ -239,9 +238,9 @@ fun LoginContent(
                     modifier = Modifier.clickable(onClick = onRegisterClick),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "¿No tienes cuenta? ", color = TextGray, fontSize = 14.sp)
+                    Text(text = stringResource(id = R.string.login_register_prompt), color = TextGray, fontSize = 14.sp)
                     Text(
-                        text = "Regístrate",
+                        text = stringResource(id = R.string.login_register_button),
                         color = JuntateGreen,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
