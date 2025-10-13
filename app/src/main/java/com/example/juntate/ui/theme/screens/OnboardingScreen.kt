@@ -51,44 +51,31 @@ fun OnboardingScreen(
 
 @Composable
 fun PortraitLayout(onStartClick: () -> Unit) {
-    // ✅ VARIABLE DE CONTROL: Cambia este valor para ajustar el tamaño de la imagen.
-    val peopleImageHeight = 300.dp
-
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 32.dp), // Padding general para dar aire arriba y abajo
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // --- Sección Superior (Logo y Texto) ---
-        Column(
-            modifier = Modifier
-                .weight(1f) // Usa el espacio restante
-                .padding(horizontal = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Bottom
-        ) {
-            HeaderContent()
-        }
+        // Esta sección ahora ocupa el espacio que necesita, sin weight.
+        HeaderContent()
 
         // --- Sección Central (Ilustración) ---
+        // La imagen usa weight(1f) para ocupar todo el espacio sobrante.
+        // Esto la fuerza a encogerse en pantallas más cortas.
         Image(
             painter = painterResource(id = R.drawable.ic_onboarding_people),
             contentDescription = "Personas entrenando",
             modifier = Modifier
                 .fillMaxWidth()
-                // ✅ Se aplica la altura controlable.
-                .height(peopleImageHeight)
+                .weight(1f) // ✅ ESTA ES LA CLAVE DE LA SOLUCIÓN
                 .padding(vertical = 24.dp)
         )
 
         // --- Sección Inferior (Botón) ---
-        Box(
-            modifier = Modifier
-                .weight(1f) // Usa el espacio restante
-                .padding(horizontal = 32.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            StartButton(onClick = onStartClick)
-        }
+        // Esta sección ocupa el espacio que necesita al final.
+        StartButton(onClick = onStartClick)
     }
 }
 
