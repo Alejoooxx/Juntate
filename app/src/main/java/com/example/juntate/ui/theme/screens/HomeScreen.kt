@@ -5,6 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,19 +28,27 @@ import androidx.navigation.compose.rememberNavController
 import com.example.juntate.R
 import com.example.juntate.ui.theme.*
 
-// Color para el brillo sutil de las tarjetas
-val CardShineColor = Color(0x33FFFFFF) // Blanco con baja opacidad
+data class Sport(
+    val name: String,
+    val imageResId: Int,
+    val imageAlignment: Alignment
+)
+
+val sportsList = listOf(
+    Sport("Fútbol", R.drawable.ic_futbol, Alignment.CenterStart),
+    Sport("Running", R.drawable.ic_running, Alignment.CenterEnd),
+    Sport("Gym", R.drawable.ic_gym, Alignment.CenterStart)
+)
+
+val CardShineColor = Color(0x33FFFFFF)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController) { // ✅ Se añade el parámetro
+fun HomeScreen(navController: NavHostController) {
     Scaffold(
-        bottomBar = {
-            // ✅ Se pasa el navController a la barra de navegación
-            BottomNavigationBar(navController = navController)
-        }
+        bottomBar = { BottomNavigationBar(navController = navController) }
     ) { innerPadding ->
-        LazyColumn(
+        BoxWithConstraints(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
@@ -44,53 +56,55 @@ fun HomeScreen(navController: NavHostController) { // ✅ Se añade el parámetr
                     brush = Brush.verticalGradient(
                         colors = listOf(White, TextGray)
                     )
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(vertical = 16.dp)
+                )
         ) {
-            // --- Encabezado Verde ---
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(PrimaryGreen)
-                        .padding(top = 10.dp, bottom = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "¿Qué quieres practicar \nhoy?",
-                        color = Color.White,
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 30.sp
-                    )
-                }
+            if (maxWidth < 600.dp) {
+                PhoneLayout()
+            } else {
+                TabletLayout()
             }
+        }
+    }
+}
 
-            // --- Tarjetas de Deportes ---
-            item {
+@Composable
+fun PhoneLayout() {
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(top = 16.dp)
+    ) {
+        item { Header() }
+        items(sportsList) { sport ->
+            SportCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                text = sport.name,
+                imageResId = sport.imageResId,
+                imageAlignment = sport.imageAlignment,
+                cardColor = PrimaryGreen
+            )
+        }
+    }
+}
+
+@Composable
+fun TabletLayout() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Header()
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            contentPadding = PaddingValues(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(sportsList) { sport ->
                 SportCard(
-                    text = "Fútbol",
-                    imageResId = R.drawable.ic_futbol,
-                    imageAlignment = Alignment.CenterStart,
-                    cardColor = PrimaryGreen
-                )
-            }
-            item {
-                SportCard(
-                    text = "Running",
-                    imageResId = R.drawable.ic_running,
-                    imageAlignment = Alignment.CenterEnd,
-                    cardColor = PrimaryGreen
-                )
-            }
-            item {
-                SportCard(
-                    text = "Gym",
-                    imageResId = R.drawable.ic_gym,
-                    imageAlignment = Alignment.CenterStart,
+                    modifier = Modifier.height(220.dp),
+                    text = sport.name,
+                    imageResId = sport.imageResId,
+                    imageAlignment = sport.imageAlignment,
                     cardColor = PrimaryGreen
                 )
             }
@@ -99,7 +113,28 @@ fun HomeScreen(navController: NavHostController) { // ✅ Se añade el parámetr
 }
 
 @Composable
+fun Header() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(PrimaryGreen)
+            .padding(top = 10.dp, bottom = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "¿Qué quieres practicar \nhoy?",
+            color = Color.White,
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            lineHeight = 30.sp
+        )
+    }
+}
+
+@Composable
 fun SportCard(
+    modifier: Modifier = Modifier,
     text: String,
     imageResId: Int,
     cardColor: Color,
@@ -107,11 +142,9 @@ fun SportCard(
 ) {
     Card(
         shape = RoundedCornerShape(24.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
+        modifier = modifier
             .height(190.dp)
-            .clickable { /* TODO: Navegar a la pantalla del deporte */ },
+            .clickable { /* TODO */ },
         colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Box(
@@ -138,7 +171,8 @@ fun SportCard(
                     .fillMaxWidth(0.7f)
                     .align(imageAlignment)
                     .offset(
-                        x = if (imageAlignment == Alignment.CenterStart) (-20).dp else 20.dp
+                        // ✅ AJUSTE CLAVE: Se incrementa el offset para mover más cerca del borde
+                        x = if (imageAlignment == Alignment.CenterStart) (-40).dp else 40.dp // Valores ajustados
                     )
             )
 
@@ -153,15 +187,14 @@ fun SportCard(
                 color = Color.White,
                 fontSize = 34.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(textAlignment)
+                modifier = Modifier.align(textAlignment)
             )
         }
     }
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController) { // ✅ Se añade el parámetro
+fun BottomNavigationBar(navController: NavHostController) {
     NavigationBar(
         containerColor = PrimaryGreen,
         contentColor = Color.White,
@@ -200,7 +233,6 @@ fun BottomNavigationBar(navController: NavHostController) { // ✅ Se añade el 
         NavigationBarItem(
             selected = false,
             onClick = {
-                // ✅ Se añade la acción de navegación
                 navController.navigate("profile")
             },
             icon = {
@@ -218,11 +250,18 @@ fun BottomNavigationBar(navController: NavHostController) { // ✅ Se añade el 
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, device = "spec:width=411dp,height=891dp")
 @Composable
-fun HomeScreenPreview() {
+fun HomeScreenPhonePreview() {
     MaterialTheme {
-        // ✅ Se añade un NavController de prueba para la preview
+        HomeScreen(navController = rememberNavController())
+    }
+}
+
+@Preview(showBackground = true, device = "spec:width=1280dp,height=800dp,dpi=240")
+@Composable
+fun HomeScreenTabletPreview() {
+    MaterialTheme {
         HomeScreen(navController = rememberNavController())
     }
 }
