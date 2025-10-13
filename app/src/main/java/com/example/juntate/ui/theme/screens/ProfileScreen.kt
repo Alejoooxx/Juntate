@@ -7,8 +7,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
@@ -27,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.juntate.R
 import com.example.juntate.ui.theme.*
 import com.example.juntate.viewmodel.AuthViewModel
+import com.example.juntate.viewmodel.UserProfile
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -63,7 +66,7 @@ fun ProfileScreen() {
         viewModel.fetchCurrentUserProfile()
     }
 
-    // Cuando el perfil carga o entramos en modo edición, actualizamos los campos editables
+    // Actualiza los campos editables al cambiar de modo o al cargar el perfil
     LaunchedEffect(userProfile, isEditMode) {
         userProfile?.let {
             if (isEditMode) {
@@ -110,14 +113,10 @@ fun ProfileScreen() {
                         newLocation = editedLocation,
                         onSuccess = {
                             isEditMode = false
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Perfil guardado con éxito")
-                            }
+                            coroutineScope.launch { snackbarHostState.showSnackbar("Perfil guardado con éxito") }
                         },
                         onError = { error ->
-                            coroutineScope.launch {
-                                snackbarHostState.showSnackbar(error)
-                            }
+                            coroutineScope.launch { snackbarHostState.showSnackbar(error) }
                         }
                     )
                 },
@@ -126,7 +125,7 @@ fun ProfileScreen() {
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { innerPadding ->
-        LazyColumn(
+        BoxWithConstraints(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
@@ -134,64 +133,196 @@ fun ProfileScreen() {
                     brush = Brush.verticalGradient(
                         colors = listOf(White, LightGray)
                     )
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(bottom = 24.dp)
+                )
         ) {
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.ic_profile_placeholder),
-                    contentDescription = "Foto de perfil",
-                    modifier = Modifier
-                        .size(150.dp)
-                        .clip(CircleShape)
-                        .border(2.dp, PrimaryGreen, CircleShape)
+            if (maxWidth < 600.dp) {
+                PhoneProfileLayout(
+                    isEditMode = isEditMode,
+                    userProfile = userProfile,
+                    editedName = editedName,
+                    editedEmail = editedEmail,
+                    editedBirthDate = editedBirthDate,
+                    editedLocation = editedLocation,
+                    futbolLevel = futbolLevel,
+                    runningLevel = runningLevel,
+                    gymLevel = gymLevel,
+                    onNameChange = { editedName = it },
+                    onEmailChange = { editedEmail = it },
+                    onLocationChange = { editedLocation = it },
+                    onBirthDateClick = { showDatePicker = true },
+                    onFutbolLevelSelected = { futbolLevel = it },
+                    onRunningLevelSelected = { runningLevel = it },
+                    onGymLevelSelected = { gymLevel = it }
                 )
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            // --- INFORMACIÓN DE USUARIO (CONDICIONAL) ---
-            item {
-                if (isEditMode) {
-                    // MODO EDICIÓN
-                    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-                        OutlinedTextField(value = editedName, onValueChange = { editedName = it }, label = { Text("Nombre Completo") }, modifier = Modifier.fillMaxWidth())
-                        Spacer(modifier = Modifier.height(16.dp))
-                        OutlinedTextField(value = editedEmail, onValueChange = { editedEmail = it }, label = { Text("Correo Electrónico") }, modifier = Modifier.fillMaxWidth())
-                        Spacer(modifier = Modifier.height(16.dp))
-                        OutlinedTextField(value = editedBirthDate, onValueChange = { }, label = { Text("Fecha de nacimiento") }, readOnly = true, modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true })
-                        Spacer(modifier = Modifier.height(16.dp))
-                        OutlinedTextField(value = editedLocation, onValueChange = { editedLocation = it }, label = { Text("Ubicación") }, modifier = Modifier.fillMaxWidth())
-                    }
-                } else {
-                    // MODO VISTA
-                    Column {
-                        ProfileInfoCard(label = "Nombre Completo", value = userProfile?.name ?: "Cargando...")
-                        ProfileInfoCard(label = "Correo electrónico", value = userProfile?.email ?: "Cargando...")
-                        ProfileInfoCard(label = "Fecha de nacimiento", value = userProfile?.birthDate ?: "")
-                        ProfileInfoCard(label = "Ubicación", value = userProfile?.location ?: "")
-                    }
-                }
-            }
-
-            item {
-                Divider(
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 32.dp),
-                    color = MediumGray
-                )
-            }
-
-            // --- SECCIÓN DE DEPORTES CONDICIONAL ---
-            if (isEditMode) {
-                item { SportPreferenceSection(sportName = "Fútbol", currentLevel = futbolLevel, onLevelSelected = { futbolLevel = it }) }
-                item { SportPreferenceSection(sportName = "Running", currentLevel = runningLevel, onLevelSelected = { runningLevel = it }) }
-                item { SportPreferenceSection(sportName = "Gym", currentLevel = gymLevel, onLevelSelected = { gymLevel = it }) }
             } else {
-                item { SportDisplayCard(sportName = "Fútbol", selectedLevel = futbolLevel) }
-                item { SportDisplayCard(sportName = "Running", selectedLevel = runningLevel) }
-                item { SportDisplayCard(sportName = "Gym", selectedLevel = gymLevel) }
+                TabletProfileLayout(
+                    isEditMode = isEditMode,
+                    userProfile = userProfile,
+                    editedName = editedName,
+                    editedEmail = editedEmail,
+                    editedBirthDate = editedBirthDate,
+                    editedLocation = editedLocation,
+                    futbolLevel = futbolLevel,
+                    runningLevel = runningLevel,
+                    gymLevel = gymLevel,
+                    onNameChange = { editedName = it },
+                    onEmailChange = { editedEmail = it },
+                    onLocationChange = { editedLocation = it },
+                    onBirthDateClick = { showDatePicker = true },
+                    onFutbolLevelSelected = { futbolLevel = it },
+                    onRunningLevelSelected = { runningLevel = it },
+                    onGymLevelSelected = { gymLevel = it }
+                )
             }
+        }
+    }
+}
+
+@Composable
+fun PhoneProfileLayout(
+    isEditMode: Boolean,
+    userProfile: UserProfile?,
+    editedName: String, onNameChange: (String) -> Unit,
+    editedEmail: String, onEmailChange: (String) -> Unit,
+    editedBirthDate: String, onBirthDateClick: () -> Unit,
+    editedLocation: String, onLocationChange: (String) -> Unit,
+    futbolLevel: String?, onFutbolLevelSelected: (String) -> Unit,
+    runningLevel: String?, onRunningLevelSelected: (String) -> Unit,
+    gymLevel: String?, onGymLevelSelected: (String) -> Unit
+) {
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        contentPadding = PaddingValues(bottom = 24.dp)
+    ) {
+        item { ProfileHeader() }
+        item {
+            UserInfoSection(
+                isEditMode = isEditMode,
+                userProfile = userProfile,
+                editedName = editedName, onNameChange = onNameChange,
+                editedEmail = editedEmail, onEmailChange = onEmailChange,
+                editedBirthDate = editedBirthDate, onBirthDateClick = onBirthDateClick,
+                editedLocation = editedLocation, onLocationChange = onLocationChange
+            )
+        }
+        item {
+            Divider(modifier = Modifier.padding(horizontal = 24.dp, vertical = 32.dp), color = MediumGray)
+        }
+        item {
+            SportsSection(
+                isEditMode = isEditMode,
+                futbolLevel = futbolLevel, onFutbolLevelSelected = onFutbolLevelSelected,
+                runningLevel = runningLevel, onRunningLevelSelected = onRunningLevelSelected,
+                gymLevel = gymLevel, onGymLevelSelected = onGymLevelSelected
+            )
+        }
+    }
+}
+
+@Composable
+fun TabletProfileLayout(
+    isEditMode: Boolean,
+    userProfile: UserProfile?,
+    editedName: String, onNameChange: (String) -> Unit,
+    editedEmail: String, onEmailChange: (String) -> Unit,
+    editedBirthDate: String, onBirthDateClick: () -> Unit,
+    editedLocation: String, onLocationChange: (String) -> Unit,
+    futbolLevel: String?, onFutbolLevelSelected: (String) -> Unit,
+    runningLevel: String?, onRunningLevelSelected: (String) -> Unit,
+    gymLevel: String?, onGymLevelSelected: (String) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ProfileHeader()
+            UserInfoSection(
+                isEditMode = isEditMode,
+                userProfile = userProfile,
+                editedName = editedName, onNameChange = onNameChange,
+                editedEmail = editedEmail, onEmailChange = onEmailChange,
+                editedBirthDate = editedBirthDate, onBirthDateClick = onBirthDateClick,
+                editedLocation = editedLocation, onLocationChange = onLocationChange
+            )
+        }
+        Column(
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
+            SportsSection(
+                isEditMode = isEditMode,
+                futbolLevel = futbolLevel, onFutbolLevelSelected = onFutbolLevelSelected,
+                runningLevel = runningLevel, onRunningLevelSelected = onRunningLevelSelected,
+                gymLevel = gymLevel, onGymLevelSelected = onGymLevelSelected
+            )
+        }
+    }
+}
+
+@Composable
+fun ProfileHeader() {
+    Spacer(modifier = Modifier.height(24.dp))
+    Image(
+        painter = painterResource(id = R.drawable.ic_profile_placeholder),
+        contentDescription = "Foto de perfil",
+        modifier = Modifier.size(150.dp).clip(CircleShape).border(2.dp, PrimaryGreen, CircleShape)
+    )
+    Spacer(modifier = Modifier.height(24.dp))
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UserInfoSection(
+    isEditMode: Boolean,
+    userProfile: UserProfile?,
+    editedName: String, onNameChange: (String) -> Unit,
+    editedEmail: String, onEmailChange: (String) -> Unit,
+    editedBirthDate: String, onBirthDateClick: () -> Unit,
+    editedLocation: String, onLocationChange: (String) -> Unit
+) {
+    if (isEditMode) {
+        Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+            OutlinedTextField(value = editedName, onValueChange = onNameChange, label = { Text("Nombre Completo") }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(value = editedEmail, onValueChange = onEmailChange, label = { Text("Correo Electrónico") }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(value = editedBirthDate, onValueChange = {}, label = { Text("Fecha de nacimiento") }, readOnly = true, modifier = Modifier.fillMaxWidth().clickable(onClick = onBirthDateClick))
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(value = editedLocation, onValueChange = onLocationChange, label = { Text("Ubicación") }, modifier = Modifier.fillMaxWidth())
+        }
+    } else {
+        Column {
+            ProfileInfoCard(label = "Nombre Completo", value = userProfile?.name ?: "Cargando...")
+            ProfileInfoCard(label = "Correo electrónico", value = userProfile?.email ?: "Cargando...")
+            ProfileInfoCard(label = "Fecha de nacimiento", value = userProfile?.birthDate ?: "")
+            ProfileInfoCard(label = "Ubicación", value = userProfile?.location ?: "")
+        }
+    }
+}
+
+@Composable
+fun SportsSection(
+    isEditMode: Boolean,
+    futbolLevel: String?, onFutbolLevelSelected: (String) -> Unit,
+    runningLevel: String?, onRunningLevelSelected: (String) -> Unit,
+    gymLevel: String?, onGymLevelSelected: (String) -> Unit
+) {
+    if (isEditMode) {
+        Column {
+            SportPreferenceSection(sportName = "Fútbol", currentLevel = futbolLevel, onLevelSelected = onFutbolLevelSelected)
+            SportPreferenceSection(sportName = "Running", currentLevel = runningLevel, onLevelSelected = onRunningLevelSelected)
+            SportPreferenceSection(sportName = "Gym", currentLevel = gymLevel, onLevelSelected = onGymLevelSelected)
+        }
+    } else {
+        Column {
+            SportDisplayCard(sportName = "Fútbol", selectedLevel = futbolLevel)
+            SportDisplayCard(sportName = "Running", selectedLevel = runningLevel)
+            SportDisplayCard(sportName = "Gym", selectedLevel = gymLevel)
         }
     }
 }
@@ -322,9 +453,17 @@ fun SportPreferenceSection(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, device = "spec:width=411dp,height=891dp", name = "Phone Preview")
 @Composable
-fun ProfileScreenPreview() {
+fun ProfileScreenPhonePreview() {
+    JuntateTheme {
+        ProfileScreen()
+    }
+}
+
+@Preview(showBackground = true, device = "spec:width=1280dp,height=800dp,dpi=240", name = "Tablet Preview")
+@Composable
+fun ProfileScreenTabletPreview() {
     JuntateTheme {
         ProfileScreen()
     }
