@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.juntate.R
+import com.example.juntate.ui.theme.JuntateTheme
 import com.example.juntate.ui.theme.PrimaryGreen
 import com.example.juntate.ui.theme.PrimaryLightGreen
 
@@ -29,87 +31,150 @@ fun OnboardingScreen(
     onStartClick: () -> Unit = {}
 ) {
     val darkerGreen = Color(0xFF166660)
-    val peopleImageHeight = 280.dp
 
-    Column(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(PrimaryGreen, darkerGreen)
                 )
-            ),
+            )
+    ) {
+        if (maxHeight > maxWidth) {
+            PortraitLayout(onStartClick = onStartClick)
+        } else {
+            LandscapeLayout(onStartClick = onStartClick)
+        }
+    }
+}
+
+@Composable
+fun PortraitLayout(onStartClick: () -> Unit) {
+    // ✅ VARIABLE DE CONTROL: Cambia este valor para ajustar el tamaño de la imagen.
+    val peopleImageHeight = 300.dp
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        //Sección Superior (Logo y Texto)
+        // --- Sección Superior (Logo y Texto) ---
         Column(
             modifier = Modifier
-                .weight(1.2f)
+                .weight(1f) // Usa el espacio restante
                 .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.logoverde),
-                contentDescription = "Logo de Juntate",
-                colorFilter = ColorFilter.tint(Color.White),
-                modifier = Modifier.size(140.dp)
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "Encuentra tu equipo,\nentrena acompañado.",
-                color = Color.White,
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold,
-                lineHeight = 40.sp,
-                textAlign = TextAlign.Center
-            )
+            HeaderContent()
         }
 
-        //Sección Central (Ilustración)
+        // --- Sección Central (Ilustración) ---
         Image(
             painter = painterResource(id = R.drawable.ic_onboarding_people),
             contentDescription = "Personas entrenando",
             modifier = Modifier
                 .fillMaxWidth()
+                // ✅ Se aplica la altura controlable.
                 .height(peopleImageHeight)
-                .weight(1.2f, fill = false)
                 .padding(vertical = 24.dp)
         )
 
-        //Sección Inferior (Botón)
+        // --- Sección Inferior (Botón) ---
         Box(
             modifier = Modifier
-                .weight(1f)
+                .weight(1f) // Usa el espacio restante
                 .padding(horizontal = 32.dp),
             contentAlignment = Alignment.Center
         ) {
-            Button(
-                onClick = onStartClick,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = PrimaryLightGreen
-                ),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(55.dp)
-            ) {
-                Text(
-                    text = "Empezar ahora",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
+            StartButton(onClick = onStartClick)
         }
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun OnboardingScreenPreview() {
-    androidx.compose.material3.MaterialTheme {
+fun LandscapeLayout(onStartClick: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                HeaderContent()
+            }
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_onboarding_people),
+                    contentDescription = "Personas entrenando",
+                    modifier = Modifier.fillMaxHeight(0.8f)
+                )
+            }
+        }
+        StartButton(onClick = onStartClick)
+    }
+}
+
+@Composable
+fun HeaderContent() {
+    Image(
+        painter = painterResource(id = R.drawable.logoverde),
+        contentDescription = "Logo de Juntate",
+        colorFilter = ColorFilter.tint(Color.White),
+        modifier = Modifier.size(140.dp)
+    )
+    Spacer(modifier = Modifier.height(24.dp))
+    Text(
+        text = "Encuentra tu equipo,\nentrena acompañado.",
+        color = Color.White,
+        fontSize = 30.sp,
+        fontWeight = FontWeight.Bold,
+        lineHeight = 40.sp,
+        textAlign = TextAlign.Center
+    )
+}
+
+@Composable
+fun StartButton(onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = PrimaryLightGreen
+        ),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .height(55.dp)
+    ) {
+        Text(
+            text = "Empezar ahora",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+    }
+}
+
+
+// --- Previews ---
+@Preview(showBackground = true, device = "spec:width=411dp,height=891dp", name = "Phone Portrait Preview")
+@Composable
+fun OnboardingScreenPhonePreview() {
+    JuntateTheme {
+        OnboardingScreen()
+    }
+}
+
+@Preview(showBackground = true, device = "spec:width=1280dp,height=800dp,dpi=240", name = "Tablet Landscape Preview")
+@Composable
+fun OnboardingScreenTabletPreview() {
+    JuntateTheme {
         OnboardingScreen()
     }
 }
