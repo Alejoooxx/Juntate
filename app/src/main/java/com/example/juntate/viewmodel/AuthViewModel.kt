@@ -1,5 +1,6 @@
 package com.example.juntate.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.juntate.data.FirebaseModule
@@ -7,13 +8,24 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.lang.Exception
 
-// ⛔️ Ya no necesitamos AuthState ni StateFlow. Haremos todo con callbacks.
+// Representa los diferentes estados de la UI para el registro
+sealed class AuthState {
+    object Idle : AuthState()
+    object Loading : AuthState()
+    object Success : AuthState()
+    data class Error(val message: String) : AuthState()
+    data class EmailAlreadyExists(val message: String) : AuthState()
+}
 
+// Modelo para guardar la información del perfil del usuario
 data class UserProfile(
     val name: String = "",
-    val email: String = ""
+    val email: String = "",
+    val birthDate: String = "",
+    val location: String = ""
 )
 
 class AuthViewModel : ViewModel() {
@@ -21,17 +33,16 @@ class AuthViewModel : ViewModel() {
     private val auth = FirebaseModule.auth
     private val db = FirebaseModule.db
 
-    // (El StateFlow del perfil se mantiene para ProfileScreen)
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
+    val authState: StateFlow<AuthState> = _authState
+
     private val _userProfile = MutableStateFlow<UserProfile?>(null)
     val userProfile: StateFlow<UserProfile?> = _userProfile
 
-    // ✅ FUNCIÓN DE REGISTRO CORREGIDA Y SIMPLIFICADA
+
     fun registerUser(
-        name: String,
-        email: String,
-        password: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
+        name: String, email: String, password: String,
+        onSuccess: () -> Unit, onError: (String) -> Unit
     ) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
@@ -46,7 +57,6 @@ class AuthViewModel : ViewModel() {
                     .addOnFailureListener { e -> onError(e.message ?: "Error al guardar datos.") }
             }
             .addOnFailureListener { e ->
-                // Se verifica el tipo de error para dar un mensaje específico
                 val errorMessage = if (e is FirebaseAuthUserCollisionException) {
                     "Ya existe una cuenta con ese correo."
                 } else {
@@ -56,25 +66,88 @@ class AuthViewModel : ViewModel() {
             }
     }
 
-    // ✅ FUNCIÓN DE LOGIN CORREGIDA PARA SER MÁS EXPLÍCITA
     fun loginUser(
-        email: String,
-        password: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
+        email: String, password: String,
+        onSuccess: () -> Unit, onError: (String) -> Unit
     ) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
-                onSuccess() // Se llama al callback de éxito
+                onSuccess()
             }
             .addOnFailureListener { e ->
-                // Se traduce el error para el usuario
                 onError("Correo o contraseña incorrectos.")
             }
     }
 
-    // (La función de fetchCurrentUserProfile se mantiene igual)
+    fun resetAuthState() {
+        _authState.value = AuthState.Idle
+    }
+
     fun fetchCurrentUserProfile() {
-        // ... (código sin cambios)
+        val firebaseUser = auth.currentUser
+        if (firebaseUser == null) {
+            Log.w("ProfileFetch", "No hay usuario actual para obtener el perfil.")
+            return
+        }
+
+        db.collection("users").document(firebaseUser.uid).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    _userProfile.value = UserProfile(
+                        name = document.getString("name") ?: "",
+                        email = document.getString("email") ?: "",
+                        birthDate = document.getString("birthDate") ?: "",
+                        location = document.getString("location") ?: ""
+                    )
+                    Log.i("ProfileFetch", "Perfil cargado exitosamente para ${firebaseUser.uid}")
+                } else {
+                    Log.w("ProfileFetch", "El documento del usuario no existe.")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("ProfileFetch", "Error al obtener el perfil del usuario.", exception)
+                _userProfile.value = UserProfile(name = "Error", email = "No se pudo cargar")
+            }
+    }
+
+    fun updateUserProfile(
+        newName: String,
+        newEmail: String,
+        newBirthDate: String,
+        newLocation: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            val user = auth.currentUser
+            if (user == null) {
+                onError("No hay un usuario autenticado.")
+                return@launch
+            }
+
+            try {
+                // Paso 1: Actualizar el correo en Firebase Authentication (si ha cambiado)
+                if (user.email != newEmail) {
+                    user.updateEmail(newEmail).await()
+                }
+
+                // Paso 2: Actualizar los datos en Firestore
+                val updatedData = mapOf(
+                    "name" to newName,
+                    "email" to newEmail,
+                    "birthDate" to newBirthDate,
+                    "location" to newLocation
+                )
+                db.collection("users").document(user.uid).update(updatedData).await()
+
+                // Paso 3: Volver a cargar los datos en la UI y notificar el éxito
+                fetchCurrentUserProfile()
+                onSuccess()
+
+            } catch (e: Exception) {
+                Log.e("ProfileUpdate", "Error al actualizar el perfil", e)
+                onError(e.message ?: "Ocurrió un error desconocido.")
+            }
+        }
     }
 }
