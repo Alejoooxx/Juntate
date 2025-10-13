@@ -1,6 +1,5 @@
 package com.example.juntate.ui.theme.screens
 
-// ✅ LISTA DE IMPORTACIONES CORRECTA Y COMPLETA
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -62,184 +61,214 @@ fun LoginScreen(
                 )
             )
     ) {
-        // ... (Imágenes de las esquinas se mantienen igual)
         Image(
             painter = painterResource(id = R.drawable.esquina1),
             contentDescription = null,
-            modifier = Modifier
-                .size(cornerImageSize)
-                .align(Alignment.TopStart)
-                .offset(x = -imageOffset, y = -imageOffset)
-                .alpha(0.15f)
+            modifier = Modifier.size(cornerImageSize).align(Alignment.TopStart).offset(x = -imageOffset, y = -imageOffset).alpha(0.15f)
         )
         Image(
             painter = painterResource(id = R.drawable.esquina2),
             contentDescription = null,
-            modifier = Modifier
-                .size(cornerImageSize)
-                .align(Alignment.BottomEnd)
-                .offset(x = imageOffset, y = imageOffset)
-                .alpha(0.15f)
+            modifier = Modifier.size(cornerImageSize).align(Alignment.BottomEnd).offset(x = imageOffset, y = imageOffset).alpha(0.15f)
         )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Card(
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(vertical = 32.dp, horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.logoverde),
-                        contentDescription = "Logo de Juntate",
-                        modifier = Modifier.size(90.dp)
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Text(
-                        text = "Iniciar Sesión",
-                        color = Black,
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
 
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        placeholder = { Text("Correo electrónico", color = MediumGray) },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = LightGray,
-                            focusedContainerColor = LightGray,
-                            unfocusedBorderColor = Color.Transparent,
-                            focusedBorderColor = JuntateGreen
-                        ),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        placeholder = { Text("Contraseña", color = MediumGray) },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = LightGray,
-                            focusedContainerColor = LightGray,
-                            unfocusedBorderColor = Color.Transparent,
-                            focusedBorderColor = JuntateGreen
-                        ),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = {
-                            val image = if (passwordVisible)
-                                Icons.Filled.VisibilityOff
-                            else Icons.Filled.Visibility
-
-                            val description = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
-
-                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(imageVector = image, description)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = "¿Olvidaste tu contraseña?",
-                            color = TextGray,
-                            fontSize = 14.sp,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .clickable { /* TODO */ }
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Button(
-                        onClick = {
-                            if (email.isNotBlank() && password.isNotBlank()) {
-                                isLoading = true
-                                viewModel.loginUser(
-                                    email = email.trim(),
-                                    password = password,
-                                    onSuccess = {
-                                        isLoading = false
-                                        onLoginSuccess()
-                                    },
-                                    onError = { errorMessage ->
-                                        isLoading = false
-                                        coroutineScope.launch {
-                                            snackbarHostState.showSnackbar(errorMessage)
-                                        }
-                                    }
-                                )
-                            } else {
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar("Por favor, completa ambos campos.")
-                                }
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = JuntateGreen),
-                        shape = RoundedCornerShape(12.dp),
-                        enabled = !isLoading,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                color = White,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        } else {
-                            Text(
-                                text = "Iniciar sesión",
-                                color = White,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Row(
-                        modifier = Modifier.clickable { onRegisterClick() },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "¿No tienes cuenta? ",
-                            color = TextGray,
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            text = "Regístrate",
-                            color = JuntateGreen,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                        )
-                    }
-                }
+        // ✅ Se usa BoxWithConstraints para detectar el ancho de la pantalla.
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val cardModifier = if (maxWidth < 600.dp) {
+                // En teléfonos, la tarjeta ocupa todo el ancho.
+                Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+            } else {
+                // En tablets, la tarjeta ocupa el 60% del ancho.
+                Modifier.fillMaxWidth(0.6f)
             }
+
+            // Se pasa el modifier y los estados al contenido.
+            LoginContent(
+                modifier = cardModifier,
+                email = email,
+                password = password,
+                isLoading = isLoading,
+                passwordVisible = passwordVisible,
+                snackbarHostState = snackbarHostState,
+                onEmailChange = { email = it },
+                onPasswordChange = { password = it },
+                onPasswordVisibilityChange = { passwordVisible = it },
+                onLoginClick = {
+                    if (email.isNotBlank() && password.isNotBlank()) {
+                        isLoading = true
+                        viewModel.loginUser(
+                            email = email.trim(),
+                            password = password,
+                            onSuccess = {
+                                isLoading = false
+                                onLoginSuccess()
+                            },
+                            onError = { errorMessage ->
+                                isLoading = false
+                                coroutineScope.launch { snackbarHostState.showSnackbar(errorMessage) }
+                            }
+                        )
+                    } else {
+                        coroutineScope.launch { snackbarHostState.showSnackbar("Por favor, completa ambos campos.") }
+                    }
+                },
+                onRegisterClick = onRegisterClick
+            )
         }
+
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
+    }
+}
+
+// ✅ Se extrae el contenido del formulario a un Composable reutilizable.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LoginContent(
+    modifier: Modifier,
+    email: String,
+    password: String,
+    isLoading: Boolean,
+    passwordVisible: Boolean,
+    snackbarHostState: SnackbarHostState,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onPasswordVisibilityChange: (Boolean) -> Unit,
+    onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            modifier = modifier // Se aplica el modifier responsivo aquí.
+        ) {
+            Column(
+                modifier = Modifier.padding(vertical = 32.dp, horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logoverde),
+                    contentDescription = "Logo de Juntate",
+                    modifier = Modifier.size(90.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = "Iniciar Sesión",
+                    color = Black,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = onEmailChange,
+                    placeholder = { Text("Correo electrónico", color = MediumGray) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = LightGray,
+                        focusedContainerColor = LightGray,
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = JuntateGreen
+                    ),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = onPasswordChange,
+                    placeholder = { Text("Contraseña", color = MediumGray) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = LightGray,
+                        focusedContainerColor = LightGray,
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = JuntateGreen
+                    ),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val image = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
+                        val description = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                        IconButton(onClick = { onPasswordVisibilityChange(!passwordVisible) }) {
+                            Icon(imageVector = image, description)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "¿Olvidaste tu contraseña?",
+                        color = TextGray,
+                        fontSize = 14.sp,
+                        modifier = Modifier.align(Alignment.Center).clickable { /* TODO */ }
+                    )
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = onLoginClick,
+                    colors = ButtonDefaults.buttonColors(containerColor = JuntateGreen),
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = !isLoading,
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(color = White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(
+                            text = "Iniciar sesión",
+                            color = White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.clickable(onClick = onRegisterClick),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "¿No tienes cuenta? ", color = TextGray, fontSize = 14.sp)
+                    Text(
+                        text = "Regístrate",
+                        color = JuntateGreen,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                    )
+                }
+            }
+        }
+    }
+}
+
+// ✅ Previews para ambos casos: teléfono y tablet.
+@Preview(showBackground = true, device = "spec:width=411dp,height=891dp", name = "Phone Preview")
+@Composable
+fun LoginScreenPhonePreview() {
+    JuntateTheme {
+        LoginScreen()
+    }
+}
+
+@Preview(showBackground = true, device = "spec:width=1280dp,height=800dp,dpi=240", name = "Tablet Preview")
+@Composable
+fun LoginScreenTabletPreview() {
+    JuntateTheme {
+        LoginScreen()
     }
 }
