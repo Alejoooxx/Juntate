@@ -1,13 +1,9 @@
 package com.example.juntate
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.activity.enableEdgeToEdge // ✅ Asegúrate de tener esta importación
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -31,23 +27,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        FirebaseApp.initializeApp(this)
-
         enableEdgeToEdge()
+
+        FirebaseApp.initializeApp(this)
 
         setContent {
             JuntateTheme {
-                // Se crea el SnackbarHostState aquí para pasarlo entre pantallas
                 val snackbarHostState = remember { SnackbarHostState() }
                 val navController = rememberNavController()
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) } // Host global
+                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
                 ) { innerPadding ->
                     AppNavigation(
                         navController = navController,
-                        snackbarHostState = snackbarHostState, // Se pasa el estado
+                        snackbarHostState = snackbarHostState,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -59,7 +54,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation(
     navController: NavHostController,
-    snackbarHostState: SnackbarHostState, // Se recibe el estado
+    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -73,7 +68,6 @@ fun AppNavigation(
             )
         }
 
-        // Se añade un argumento opcional a la ruta de login para recibir el mensaje
         composable(
             route = "login?message={message}",
             arguments = listOf(navArgument("message") {
@@ -82,7 +76,6 @@ fun AppNavigation(
             })
         ) { backStackEntry ->
             val message = backStackEntry.arguments?.getString("message")
-            // Si hay un mensaje, se muestra en el Snackbar
             LaunchedEffect(message) {
                 message?.let {
                     snackbarHostState.showSnackbar(it)
@@ -101,7 +94,6 @@ fun AppNavigation(
         composable("register") {
             RegisterScreen(
                 onRegisterSuccess = { successMessage ->
-                    // Navega a login, limpiando el stack y pasando el mensaje
                     navController.navigate("login?message=$successMessage") {
                         popUpTo("login") { inclusive = true }
                     }
@@ -111,13 +103,11 @@ fun AppNavigation(
         }
 
         composable("home") {
-            // ✅ CAMBIO 1: Se pasa el navController a la HomeScreen
             HomeScreen(navController = navController)
         }
 
-        // ✅ CAMBIO 2: Se añade la nueva ruta para el perfil
         composable("profile") {
-            ProfileScreen()
+            ProfileScreen(navController = navController)
         }
     }
 }

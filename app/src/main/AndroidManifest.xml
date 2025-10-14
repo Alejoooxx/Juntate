@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -16,9 +18,7 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Juntate"
-
             android:screenOrientation="portrait"
-
             tools:ignore="LockedOrientationActivity">
 
             <intent-filter>

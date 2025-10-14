@@ -1,7 +1,11 @@
 package com.example.juntate.ui.theme.screens
 
+import android.Manifest
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,12 +24,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.juntate.R
 import com.example.juntate.ui.theme.*
 import com.example.juntate.viewmodel.AuthViewModel
@@ -36,37 +45,49 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavController) {
 
     val viewModel: AuthViewModel = viewModel()
     val userProfile by viewModel.userProfile.collectAsState()
+    val context = LocalContext.current
 
     var isEditMode by remember { mutableStateOf(false) }
 
-    // --- Estados para los campos editables ---
+    // Estados para los valores editados
     var editedName by remember { mutableStateOf("") }
     var editedEmail by remember { mutableStateOf("") }
     var editedBirthDate by remember { mutableStateOf("") }
     var editedLocation by remember { mutableStateOf("") }
-
-    // --- Estados para guardar el nivel de cada deporte ---
+    var editedProfilePictureUri by remember { mutableStateOf<Uri?>(null) }
     var futbolLevel by remember { mutableStateOf<String?>(null) }
     var runningLevel by remember { mutableStateOf<String?>(null) }
     var gymLevel by remember { mutableStateOf<String?>(null) }
 
-    // --- Lógica para el DatePicker ---
     val datePickerState = rememberDatePickerState()
     var showDatePicker by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Carga los datos iniciales
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? -> editedProfilePictureUri = uri }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            imagePickerLauncher.launch("image/*")
+        } else {
+            Toast.makeText(context, "Permiso denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.fetchCurrentUserProfile()
     }
 
-    // Actualiza los campos editables al cambiar de modo o al cargar el perfil
+    // Este efecto llena correctamente los campos de edición al entrar en modo de edición
     LaunchedEffect(userProfile, isEditMode) {
         userProfile?.let {
             if (isEditMode) {
@@ -74,6 +95,10 @@ fun ProfileScreen() {
                 editedEmail = it.email
                 editedBirthDate = it.birthDate
                 editedLocation = it.location
+                futbolLevel = it.futbolLevel
+                runningLevel = it.runningLevel
+                gymLevel = it.gymLevel
+                editedProfilePictureUri = null
             }
         }
     }
@@ -86,8 +111,10 @@ fun ProfileScreen() {
                     onClick = {
                         showDatePicker = false
                         datePickerState.selectedDateMillis?.let { millis ->
+                            val selectedDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                            selectedDate.timeInMillis = millis
                             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                            editedBirthDate = formatter.format(Date(millis))
+                            editedBirthDate = formatter.format(selectedDate.time)
                         }
                     }
                 ) { Text("OK") }
@@ -106,21 +133,50 @@ fun ProfileScreen() {
                 isEditMode = isEditMode,
                 onEditClick = { isEditMode = true },
                 onSaveClick = {
-                    viewModel.updateUserProfile(
-                        newName = editedName,
-                        newEmail = editedEmail,
-                        newBirthDate = editedBirthDate,
-                        newLocation = editedLocation,
-                        onSuccess = {
-                            isEditMode = false
-                            coroutineScope.launch { snackbarHostState.showSnackbar("Perfil guardado con éxito") }
-                        },
-                        onError = { error ->
-                            coroutineScope.launch { snackbarHostState.showSnackbar(error) }
-                        }
-                    )
+                    val currentProfile = userProfile ?: return@ProfileTopAppBar
+
+                    fun saveProfile(imageUrl: String) {
+                        viewModel.updateUserProfile(
+                            profileData = currentProfile.copy(
+                                name = editedName,
+                                email = editedEmail,
+                                birthDate = editedBirthDate,
+                                location = editedLocation,
+                                profilePictureUrl = imageUrl,
+                                futbolLevel = futbolLevel,
+                                runningLevel = runningLevel,
+                                gymLevel = gymLevel
+                            ),
+                            onSuccess = { successMessage ->
+                                // FIX: Al tener éxito, salimos del modo edición para ver los cambios
+                                isEditMode = false
+                                coroutineScope.launch { snackbarHostState.showSnackbar(successMessage) }
+                            },
+                            onError = { error ->
+                                coroutineScope.launch { snackbarHostState.showSnackbar(error) }
+                            }
+                        )
+                    }
+
+                    if (editedProfilePictureUri != null) {
+                        viewModel.uploadProfilePicture(
+                            uri = editedProfilePictureUri!!,
+                            onSuccess = { newImageUrl -> saveProfile(newImageUrl) },
+                            onError = { error ->
+                                coroutineScope.launch { snackbarHostState.showSnackbar(error) }
+                            }
+                        )
+                    } else {
+                        saveProfile(currentProfile.profilePictureUrl)
+                    }
                 },
-                onCancelClick = { isEditMode = false }
+                onCancelClick = { isEditMode = false },
+                onLogoutClick = {
+                    viewModel.signOut()
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
@@ -129,11 +185,7 @@ fun ProfileScreen() {
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(White, LightGray)
-                    )
-                )
+                .background(brush = Brush.verticalGradient(colors = listOf(White, LightGray)))
         ) {
             if (maxWidth < 600.dp) {
                 PhoneProfileLayout(
@@ -146,32 +198,27 @@ fun ProfileScreen() {
                     futbolLevel = futbolLevel,
                     runningLevel = runningLevel,
                     gymLevel = gymLevel,
+                    editedProfilePictureUri = editedProfilePictureUri,
                     onNameChange = { editedName = it },
                     onEmailChange = { editedEmail = it },
                     onLocationChange = { editedLocation = it },
                     onBirthDateClick = { showDatePicker = true },
                     onFutbolLevelSelected = { futbolLevel = it },
                     onRunningLevelSelected = { runningLevel = it },
-                    onGymLevelSelected = { gymLevel = it }
+                    onGymLevelSelected = { gymLevel = it },
+                    onProfilePictureClick = { permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES) }
                 )
             } else {
                 TabletProfileLayout(
-                    isEditMode = isEditMode,
-                    userProfile = userProfile,
-                    editedName = editedName,
-                    editedEmail = editedEmail,
-                    editedBirthDate = editedBirthDate,
-                    editedLocation = editedLocation,
-                    futbolLevel = futbolLevel,
-                    runningLevel = runningLevel,
-                    gymLevel = gymLevel,
-                    onNameChange = { editedName = it },
-                    onEmailChange = { editedEmail = it },
-                    onLocationChange = { editedLocation = it },
-                    onBirthDateClick = { showDatePicker = true },
-                    onFutbolLevelSelected = { futbolLevel = it },
-                    onRunningLevelSelected = { runningLevel = it },
-                    onGymLevelSelected = { gymLevel = it }
+                    isEditMode, userProfile, editedName, { editedName = it },
+                    editedEmail, { editedEmail = it },
+                    editedBirthDate, { showDatePicker = true },
+                    editedLocation, { editedLocation = it },
+                    futbolLevel, { futbolLevel = it },
+                    runningLevel, { runningLevel = it },
+                    gymLevel, { gymLevel = it },
+                    editedProfilePictureUri,
+                    { permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES) }
                 )
             }
         }
@@ -186,15 +233,25 @@ fun PhoneProfileLayout(
     editedEmail: String, onEmailChange: (String) -> Unit,
     editedBirthDate: String, onBirthDateClick: () -> Unit,
     editedLocation: String, onLocationChange: (String) -> Unit,
+    // Estos son los estados para el modo EDICIÓN
     futbolLevel: String?, onFutbolLevelSelected: (String) -> Unit,
     runningLevel: String?, onRunningLevelSelected: (String) -> Unit,
-    gymLevel: String?, onGymLevelSelected: (String) -> Unit
+    gymLevel: String?, onGymLevelSelected: (String) -> Unit,
+    editedProfilePictureUri: Uri?,
+    onProfilePictureClick: () -> Unit
 ) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-        item { ProfileHeader() }
+        item {
+            ProfileHeader(
+                isEditMode = isEditMode,
+                profilePictureUri = editedProfilePictureUri,
+                profilePictureUrl = userProfile?.profilePictureUrl,
+                onProfilePictureClick = onProfilePictureClick
+            )
+        }
         item {
             UserInfoSection(
                 isEditMode = isEditMode,
@@ -211,9 +268,13 @@ fun PhoneProfileLayout(
         item {
             SportsSection(
                 isEditMode = isEditMode,
-                futbolLevel = futbolLevel, onFutbolLevelSelected = onFutbolLevelSelected,
-                runningLevel = runningLevel, onRunningLevelSelected = onRunningLevelSelected,
-                gymLevel = gymLevel, onGymLevelSelected = onGymLevelSelected
+                // FIX: Pasamos los datos correctos según el modo (edición o vista)
+                futbolLevel = if (isEditMode) futbolLevel else userProfile?.futbolLevel,
+                onFutbolLevelSelected = onFutbolLevelSelected,
+                runningLevel = if (isEditMode) runningLevel else userProfile?.runningLevel,
+                onRunningLevelSelected = onRunningLevelSelected,
+                gymLevel = if (isEditMode) gymLevel else userProfile?.gymLevel,
+                onGymLevelSelected = onGymLevelSelected
             )
         }
     }
@@ -229,7 +290,9 @@ fun TabletProfileLayout(
     editedLocation: String, onLocationChange: (String) -> Unit,
     futbolLevel: String?, onFutbolLevelSelected: (String) -> Unit,
     runningLevel: String?, onRunningLevelSelected: (String) -> Unit,
-    gymLevel: String?, onGymLevelSelected: (String) -> Unit
+    gymLevel: String?, onGymLevelSelected: (String) -> Unit,
+    editedProfilePictureUri: Uri?,
+    onProfilePictureClick: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -239,7 +302,12 @@ fun TabletProfileLayout(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ProfileHeader()
+            ProfileHeader(
+                isEditMode = isEditMode,
+                profilePictureUri = editedProfilePictureUri,
+                profilePictureUrl = userProfile?.profilePictureUrl,
+                onProfilePictureClick = onProfilePictureClick
+            )
             UserInfoSection(
                 isEditMode = isEditMode,
                 userProfile = userProfile,
@@ -256,22 +324,50 @@ fun TabletProfileLayout(
             Spacer(modifier = Modifier.height(24.dp))
             SportsSection(
                 isEditMode = isEditMode,
-                futbolLevel = futbolLevel, onFutbolLevelSelected = onFutbolLevelSelected,
-                runningLevel = runningLevel, onRunningLevelSelected = onRunningLevelSelected,
-                gymLevel = gymLevel, onGymLevelSelected = onGymLevelSelected
+                futbolLevel = if (isEditMode) futbolLevel else userProfile?.futbolLevel,
+                onFutbolLevelSelected = onFutbolLevelSelected,
+                runningLevel = if (isEditMode) runningLevel else userProfile?.runningLevel,
+                onRunningLevelSelected = onRunningLevelSelected,
+                gymLevel = if (isEditMode) gymLevel else userProfile?.gymLevel,
+                onGymLevelSelected = onGymLevelSelected
             )
         }
     }
 }
 
 @Composable
-fun ProfileHeader() {
+fun ProfileHeader(
+    isEditMode: Boolean,
+    profilePictureUri: Uri?,
+    profilePictureUrl: String?,
+    onProfilePictureClick: () -> Unit
+) {
     Spacer(modifier = Modifier.height(24.dp))
-    Image(
-        painter = painterResource(id = R.drawable.ic_profile_placeholder),
-        contentDescription = "Foto de perfil",
-        modifier = Modifier.size(150.dp).clip(CircleShape).border(2.dp, PrimaryGreen, CircleShape)
-    )
+    Box {
+        AsyncImage(
+            model = profilePictureUri ?: profilePictureUrl,
+            contentDescription = "Foto de perfil",
+            placeholder = painterResource(id = R.drawable.ic_profile_placeholder),
+            error = painterResource(id = R.drawable.ic_profile_placeholder),
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(150.dp)
+                .clip(CircleShape)
+                .border(2.dp, PrimaryGreen, CircleShape)
+                .clickable(enabled = isEditMode, onClick = onProfilePictureClick)
+        )
+        if (isEditMode) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Editar foto",
+                tint = White,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .background(PrimaryGreen, CircleShape)
+                    .padding(8.dp)
+            )
+        }
+    }
     Spacer(modifier = Modifier.height(24.dp))
 }
 
@@ -291,7 +387,26 @@ fun UserInfoSection(
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(value = editedEmail, onValueChange = onEmailChange, label = { Text("Correo Electrónico") }, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(value = editedBirthDate, onValueChange = {}, label = { Text("Fecha de nacimiento") }, readOnly = true, modifier = Modifier.fillMaxWidth().clickable(onClick = onBirthDateClick))
+            Box {
+                OutlinedTextField(
+                    value = editedBirthDate,
+                    onValueChange = {},
+                    label = { Text("Fecha de nacimiento") },
+                    enabled = false,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = LocalContentColor.current,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline,
+                        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable(onClick = onBirthDateClick)
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(value = editedLocation, onValueChange = onLocationChange, label = { Text("Ubicación") }, modifier = Modifier.fillMaxWidth())
         }
@@ -333,11 +448,12 @@ fun ProfileTopAppBar(
     isEditMode: Boolean,
     onEditClick: () -> Unit,
     onSaveClick: () -> Unit,
-    onCancelClick: () -> Unit
+    onCancelClick: () -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     TopAppBar(
         title = {
-            TextButton(onClick = { /* TODO: Lógica de cerrar sesión */ }) {
+            TextButton(onClick = onLogoutClick) {
                 Text("Cerrar sesión", color = PrimaryGreen, fontWeight = FontWeight.Bold)
             }
         },
@@ -457,7 +573,7 @@ fun SportPreferenceSection(
 @Composable
 fun ProfileScreenPhonePreview() {
     JuntateTheme {
-        ProfileScreen()
+        ProfileScreen(navController = rememberNavController())
     }
 }
 
@@ -465,6 +581,6 @@ fun ProfileScreenPhonePreview() {
 @Composable
 fun ProfileScreenTabletPreview() {
     JuntateTheme {
-        ProfileScreen()
+        ProfileScreen(navController = rememberNavController())
     }
 }

@@ -4,11 +4,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -45,23 +43,31 @@ val CardShineColor = Color(0x33FFFFFF)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    Scaffold(
-        bottomBar = { BottomNavigationBar(navController = navController) }
-    ) { innerPadding ->
-        BoxWithConstraints(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(White, TextGray)
-                    )
+    // Se envuelve el Scaffold en un Box para que el fondo ocupe toda la pantalla.
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(White, TextGray)
                 )
-        ) {
-            if (maxWidth < 600.dp) {
-                PhoneLayout()
-            } else {
-                TabletLayout()
+            )
+    ) {
+        Scaffold(
+            // El Scaffold se hace transparente para que se vea el fondo del Box.
+            containerColor = Color.Transparent,
+            bottomBar = { BottomNavigationBar(navController = navController) }
+        ) { innerPadding ->
+            BoxWithConstraints(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            ) {
+                if (maxWidth < 600.dp) {
+                    PhoneLayout()
+                } else {
+                    TabletLayout()
+                }
             }
         }
     }
@@ -69,22 +75,31 @@ fun HomeScreen(navController: NavHostController) {
 
 @Composable
 fun PhoneLayout() {
-    LazyColumn(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(top = 16.dp)
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item { Header() }
-        items(sportsList) { sport ->
-            SportCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
-                text = sport.name,
-                imageResId = sport.imageResId,
-                imageAlignment = sport.imageAlignment,
-                cardColor = PrimaryGreen
-            )
+        Header()
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            sportsList.forEach { sport ->
+                SportCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    text = sport.name,
+                    imageResId = sport.imageResId,
+                    imageAlignment = sport.imageAlignment,
+                    cardColor = PrimaryGreen
+                )
+            }
         }
     }
 }
@@ -118,16 +133,17 @@ fun Header() {
         modifier = Modifier
             .fillMaxWidth()
             .background(PrimaryGreen)
-            .padding(top = 10.dp, bottom = 10.dp),
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "¿Qué quieres practicar \nhoy?",
+            text = "¿Qué quieres practicar\nhoy?",
             color = Color.White,
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            lineHeight = 30.sp
+            lineHeight = 32.sp
         )
     }
 }
@@ -142,9 +158,7 @@ fun SportCard(
 ) {
     Card(
         shape = RoundedCornerShape(24.dp),
-        modifier = modifier
-            .height(190.dp)
-            .clickable { /* TODO */ },
+        modifier = modifier.clickable { /* TODO */ },
         colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Box(
@@ -171,8 +185,7 @@ fun SportCard(
                     .fillMaxWidth(0.7f)
                     .align(imageAlignment)
                     .offset(
-                        // ✅ AJUSTE CLAVE: Se incrementa el offset para mover más cerca del borde
-                        x = if (imageAlignment == Alignment.CenterStart) (-40).dp else 40.dp // Valores ajustados
+                        x = if (imageAlignment == Alignment.CenterStart) (-40).dp else 40.dp
                     )
             )
 
