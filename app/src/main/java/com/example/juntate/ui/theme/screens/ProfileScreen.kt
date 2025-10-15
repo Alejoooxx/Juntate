@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -53,7 +54,6 @@ fun ProfileScreen(navController: NavController) {
 
     var isEditMode by remember { mutableStateOf(false) }
 
-    // Estados para los valores editados
     var editedName by remember { mutableStateOf("") }
     var editedEmail by remember { mutableStateOf("") }
     var editedBirthDate by remember { mutableStateOf("") }
@@ -87,7 +87,6 @@ fun ProfileScreen(navController: NavController) {
         viewModel.fetchCurrentUserProfile()
     }
 
-    // Este efecto llena correctamente los campos de edición al entrar en modo de edición
     LaunchedEffect(userProfile, isEditMode) {
         userProfile?.let {
             if (isEditMode) {
@@ -148,7 +147,6 @@ fun ProfileScreen(navController: NavController) {
                                 gymLevel = gymLevel
                             ),
                             onSuccess = { successMessage ->
-                                // FIX: Al tener éxito, salimos del modo edición para ver los cambios
                                 isEditMode = false
                                 coroutineScope.launch { snackbarHostState.showSnackbar(successMessage) }
                             },
@@ -233,7 +231,6 @@ fun PhoneProfileLayout(
     editedEmail: String, onEmailChange: (String) -> Unit,
     editedBirthDate: String, onBirthDateClick: () -> Unit,
     editedLocation: String, onLocationChange: (String) -> Unit,
-    // Estos son los estados para el modo EDICIÓN
     futbolLevel: String?, onFutbolLevelSelected: (String) -> Unit,
     runningLevel: String?, onRunningLevelSelected: (String) -> Unit,
     gymLevel: String?, onGymLevelSelected: (String) -> Unit,
@@ -268,7 +265,6 @@ fun PhoneProfileLayout(
         item {
             SportsSection(
                 isEditMode = isEditMode,
-                // FIX: Pasamos los datos correctos según el modo (edición o vista)
                 futbolLevel = if (isEditMode) futbolLevel else userProfile?.futbolLevel,
                 onFutbolLevelSelected = onFutbolLevelSelected,
                 runningLevel = if (isEditMode) runningLevel else userProfile?.runningLevel,
@@ -371,6 +367,13 @@ fun ProfileHeader(
     Spacer(modifier = Modifier.height(24.dp))
 }
 
+val bogotaLocalities = listOf(
+    "Antonio Nariño", "Barrios Unidos", "Bogotá D.C", "Bosa", "Chapinero", "Ciudad Bolívar",
+    "Engativá", "Fontibón", "Kennedy", "La Candelaria", "Los Mártires",
+    "Puente Aranda", "Rafael Uribe Uribe", "San Cristóbal", "Santa Fe", "Suba",
+    "Sumapaz", "Teusaquillo", "Tunjuelito", "Usaquén", "Usme"
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserInfoSection(
@@ -385,7 +388,27 @@ fun UserInfoSection(
         Column(modifier = Modifier.padding(horizontal = 24.dp)) {
             OutlinedTextField(value = editedName, onValueChange = onNameChange, label = { Text("Nombre Completo") }, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(value = editedEmail, onValueChange = onEmailChange, label = { Text("Correo Electrónico") }, modifier = Modifier.fillMaxWidth())
+
+            OutlinedTextField(
+                value = editedEmail,
+                onValueChange = {}, // Se deja vacío para que no haga nada
+                label = { Text("Correo Electrónico") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = false, // Se bloquea la edición
+                leadingIcon = { // Se añade el ícono de candado
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "Campo bloqueado"
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors( // Se personalizan los colores de deshabilitado
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    disabledContainerColor = Color.LightGray.copy(alpha = 0.2f),
+                    disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                    disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                )
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Box {
                 OutlinedTextField(
@@ -408,7 +431,40 @@ fun UserInfoSection(
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            OutlinedTextField(value = editedLocation, onValueChange = onLocationChange, label = { Text("Ubicación") }, modifier = Modifier.fillMaxWidth())
+
+            var expanded by remember { mutableStateOf(false) }
+
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
+            ) {
+                OutlinedTextField(
+                    value = editedLocation,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Ubicación") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    bogotaLocalities.forEach { locality ->
+                        DropdownMenuItem(
+                            text = { Text(locality) },
+                            onClick = {
+                                onLocationChange(locality)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
         }
     } else {
         Column {
@@ -420,6 +476,8 @@ fun UserInfoSection(
     }
 }
 
+// El resto del archivo permanece sin cambios.
+// ...
 @Composable
 fun SportsSection(
     isEditMode: Boolean,
