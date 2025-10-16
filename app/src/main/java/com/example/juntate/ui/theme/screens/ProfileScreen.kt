@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -69,6 +71,7 @@ fun ProfileScreen(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val permissionDeniedMessage = stringResource(id = R.string.permission_denied)
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? -> editedProfilePictureUri = uri }
@@ -79,7 +82,7 @@ fun ProfileScreen(navController: NavController) {
         if (isGranted) {
             imagePickerLauncher.launch("image/*")
         } else {
-            Toast.makeText(context, "Permiso denegado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, permissionDeniedMessage, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -116,10 +119,10 @@ fun ProfileScreen(navController: NavController) {
                             editedBirthDate = formatter.format(selectedDate.time)
                         }
                     }
-                ) { Text("OK") }
+                ) { Text(stringResource(id = R.string.dialog_ok)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
+                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(id = R.string.dialog_cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -342,7 +345,7 @@ fun ProfileHeader(
     Box {
         AsyncImage(
             model = profilePictureUri ?: profilePictureUrl,
-            contentDescription = "Foto de perfil",
+            contentDescription = stringResource(id = R.string.profile_picture_content_description),
             placeholder = painterResource(id = R.drawable.ic_profile_placeholder),
             error = painterResource(id = R.drawable.ic_profile_placeholder),
             contentScale = ContentScale.Crop,
@@ -355,7 +358,7 @@ fun ProfileHeader(
         if (isEditMode) {
             Icon(
                 imageVector = Icons.Default.Edit,
-                contentDescription = "Editar foto",
+                contentDescription = stringResource(id = R.string.profile_edit_photo_icon_description),
                 tint = White,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -366,13 +369,6 @@ fun ProfileHeader(
     }
     Spacer(modifier = Modifier.height(24.dp))
 }
-
-val bogotaLocalities = listOf(
-    "Antonio Nariño", "Barrios Unidos", "Bogotá D.C", "Bosa", "Chapinero", "Ciudad Bolívar",
-    "Engativá", "Fontibón", "Kennedy", "La Candelaria", "Los Mártires",
-    "Puente Aranda", "Rafael Uribe Uribe", "San Cristóbal", "Santa Fe", "Suba",
-    "Sumapaz", "Teusaquillo", "Tunjuelito", "Usaquén", "Usme"
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -385,23 +381,24 @@ fun UserInfoSection(
     editedLocation: String, onLocationChange: (String) -> Unit
 ) {
     if (isEditMode) {
+        val bogotaLocalities = stringArrayResource(id = R.array.bogota_localities)
         Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-            OutlinedTextField(value = editedName, onValueChange = onNameChange, label = { Text("Nombre Completo") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = editedName, onValueChange = onNameChange, label = { Text(stringResource(id = R.string.profile_label_full_name)) }, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
                 value = editedEmail,
-                onValueChange = {}, // Se deja vacío para que no haga nada
-                label = { Text("Correo Electrónico") },
+                onValueChange = {},
+                label = { Text(stringResource(id = R.string.profile_label_email)) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = false, // Se bloquea la edición
-                leadingIcon = { // Se añade el ícono de candado
+                enabled = false,
+                leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Lock,
-                        contentDescription = "Campo bloqueado"
+                        contentDescription = stringResource(id = R.string.profile_locked_field_description)
                     )
                 },
-                colors = OutlinedTextFieldDefaults.colors( // Se personalizan los colores de deshabilitado
+                colors = OutlinedTextFieldDefaults.colors(
                     disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     disabledContainerColor = Color.LightGray.copy(alpha = 0.2f),
                     disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
@@ -414,7 +411,7 @@ fun UserInfoSection(
                 OutlinedTextField(
                     value = editedBirthDate,
                     onValueChange = {},
-                    label = { Text("Fecha de nacimiento") },
+                    label = { Text(stringResource(id = R.string.profile_label_birth_date)) },
                     enabled = false,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -442,7 +439,7 @@ fun UserInfoSection(
                     value = editedLocation,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Ubicación") },
+                    label = { Text(stringResource(id = R.string.profile_label_location)) },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                     },
@@ -467,17 +464,16 @@ fun UserInfoSection(
             }
         }
     } else {
+        val loadingText = stringResource(id = R.string.loading)
         Column {
-            ProfileInfoCard(label = "Nombre Completo", value = userProfile?.name ?: "Cargando...")
-            ProfileInfoCard(label = "Correo electrónico", value = userProfile?.email ?: "Cargando...")
-            ProfileInfoCard(label = "Fecha de nacimiento", value = userProfile?.birthDate ?: "")
-            ProfileInfoCard(label = "Ubicación", value = userProfile?.location ?: "")
+            ProfileInfoCard(label = stringResource(id = R.string.profile_label_full_name), value = userProfile?.name ?: loadingText)
+            ProfileInfoCard(label = stringResource(id = R.string.profile_label_email), value = userProfile?.email ?: loadingText)
+            ProfileInfoCard(label = stringResource(id = R.string.profile_label_birth_date), value = userProfile?.birthDate ?: "")
+            ProfileInfoCard(label = stringResource(id = R.string.profile_label_location), value = userProfile?.location ?: "")
         }
     }
 }
 
-// El resto del archivo permanece sin cambios.
-// ...
 @Composable
 fun SportsSection(
     isEditMode: Boolean,
@@ -487,15 +483,15 @@ fun SportsSection(
 ) {
     if (isEditMode) {
         Column {
-            SportPreferenceSection(sportName = "Fútbol", currentLevel = futbolLevel, onLevelSelected = onFutbolLevelSelected)
-            SportPreferenceSection(sportName = "Running", currentLevel = runningLevel, onLevelSelected = onRunningLevelSelected)
-            SportPreferenceSection(sportName = "Gym", currentLevel = gymLevel, onLevelSelected = onGymLevelSelected)
+            SportPreferenceSection(sportName = stringResource(id = R.string.sport_soccer), currentLevel = futbolLevel, onLevelSelected = onFutbolLevelSelected)
+            SportPreferenceSection(sportName = stringResource(id = R.string.sport_running), currentLevel = runningLevel, onLevelSelected = onRunningLevelSelected)
+            SportPreferenceSection(sportName = stringResource(id = R.string.sport_gym), currentLevel = gymLevel, onLevelSelected = onGymLevelSelected)
         }
     } else {
         Column {
-            SportDisplayCard(sportName = "Fútbol", selectedLevel = futbolLevel)
-            SportDisplayCard(sportName = "Running", selectedLevel = runningLevel)
-            SportDisplayCard(sportName = "Gym", selectedLevel = gymLevel)
+            SportDisplayCard(sportName = stringResource(id = R.string.sport_soccer), selectedLevel = futbolLevel)
+            SportDisplayCard(sportName = stringResource(id = R.string.sport_running), selectedLevel = runningLevel)
+            SportDisplayCard(sportName = stringResource(id = R.string.sport_gym), selectedLevel = gymLevel)
         }
     }
 }
@@ -512,18 +508,18 @@ fun ProfileTopAppBar(
     TopAppBar(
         title = {
             TextButton(onClick = onLogoutClick) {
-                Text("Cerrar sesión", color = PrimaryGreen, fontWeight = FontWeight.Bold)
+                Text(stringResource(id = R.string.profile_logout_button), color = PrimaryGreen, fontWeight = FontWeight.Bold)
             }
         },
         actions = {
             if (isEditMode) {
-                TextButton(onClick = onSaveClick) { Text("Guardar", fontWeight = FontWeight.Bold) }
-                TextButton(onClick = onCancelClick) { Text("Cancelar", fontWeight = FontWeight.Bold) }
+                TextButton(onClick = onSaveClick) { Text(stringResource(id = R.string.profile_save_button), fontWeight = FontWeight.Bold) }
+                TextButton(onClick = onCancelClick) { Text(stringResource(id = R.string.dialog_cancel), fontWeight = FontWeight.Bold) }
             } else {
                 TextButton(onClick = onEditClick) {
-                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = PrimaryGreen)
+                    Icon(Icons.Default.Edit, contentDescription = stringResource(id = R.string.profile_edit_icon_description), tint = PrimaryGreen)
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Editar Perfil", color = PrimaryGreen, fontWeight = FontWeight.Bold)
+                    Text(stringResource(id = R.string.profile_edit_button), color = PrimaryGreen, fontWeight = FontWeight.Bold)
                 }
             }
         },
@@ -571,7 +567,7 @@ fun SportDisplayCard(sportName: String, selectedLevel: String?) {
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
-                text = selectedLevel ?: "Escoger experiencia",
+                text = selectedLevel ?: stringResource(id = R.string.sport_level_placeholder),
                 color = if (selectedLevel != null) PrimaryGreen else MediumGray,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold
@@ -587,7 +583,11 @@ fun SportPreferenceSection(
     currentLevel: String?,
     onLevelSelected: (String) -> Unit
 ) {
-    val levels = listOf("Principiante", "Intermedio", "Avanzado")
+    val levels = listOf(
+        stringResource(id = R.string.sport_level_beginner),
+        stringResource(id = R.string.sport_level_intermediate),
+        stringResource(id = R.string.sport_level_advanced)
+    )
 
     Column(
         modifier = Modifier

@@ -17,6 +17,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,6 +47,9 @@ fun RegisterScreen(
     val viewModel: AuthViewModel = viewModel()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    val registerSuccessMessage = stringResource(id = R.string.register_success_message)
+    val emptyFieldsMessage = stringResource(id = R.string.register_error_empty_fields)
 
     Box(
         modifier = modifier
@@ -98,13 +102,13 @@ fun RegisterScreen(
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.logoverde),
-                        contentDescription = "Logo de Juntate",
+                        contentDescription = stringResource(id = R.string.register_logo_description),
                         colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(White),
                         modifier = Modifier.size(110.dp)
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
-                        text = "Regístrate",
+                        text = stringResource(id = R.string.register_title),
                         color = White,
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
@@ -113,46 +117,45 @@ fun RegisterScreen(
                     AuthInputField(
                         value = name,
                         onValueChange = { name = it },
-                        placeholder = "Nombre completo",
+                        placeholder = stringResource(id = R.string.register_placeholder_full_name),
                         keyboardType = KeyboardType.Text
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     AuthInputField(
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = "Correo electrónico",
+                        placeholder = stringResource(id = R.string.register_placeholder_email),
                         keyboardType = KeyboardType.Email
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     AuthInputField(
                         value = password,
                         onValueChange = { password = it },
-                        placeholder = "Contraseña",
+                        placeholder = stringResource(id = R.string.register_placeholder_password),
                         isPassword = true,
                         keyboardType = KeyboardType.Password
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
-                        text = "O regístrate con",
+                        text = stringResource(id = R.string.register_social_prompt),
                         color = White,
                         fontSize = 14.sp,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // ✅ ÚNICO CAMBIO: Se ajusta el Arrangement y se usa .weight(1f)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp) // Espacio fijo entre botones
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         SocialButton(
-                            modifier = Modifier.weight(1f), // Ocupa la mitad del espacio
+                            modifier = Modifier.weight(1f),
                             icon = R.drawable.google,
-                            text = "Google"
+                            text = stringResource(id = R.string.social_google)
                         )
                         SocialButton(
-                            modifier = Modifier.weight(1f), // Ocupa la otra mitad
+                            modifier = Modifier.weight(1f),
                             icon = R.drawable.facebook,
-                            text = "Facebook"
+                            text = stringResource(id = R.string.social_facebook)
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
@@ -163,12 +166,12 @@ fun RegisterScreen(
                         SocialButton(
                             modifier = Modifier.weight(1f),
                             icon = R.drawable.instagram,
-                            text = "Instagram"
+                            text = stringResource(id = R.string.social_instagram)
                         )
                         SocialButton(
                             modifier = Modifier.weight(1f),
                             icon = R.drawable.apple,
-                            text = "Apple"
+                            text = stringResource(id = R.string.social_apple)
                         )
                     }
                     Spacer(modifier = Modifier.height(24.dp))
@@ -183,7 +186,7 @@ fun RegisterScreen(
                                     password = password,
                                     onSuccess = {
                                         isLoading = false
-                                        onRegisterSuccess("Registro Exitoso, puedes iniciar sesión.")
+                                        onRegisterSuccess(registerSuccessMessage)
                                     },
                                     onError = { errorMessage ->
                                         isLoading = false
@@ -191,19 +194,21 @@ fun RegisterScreen(
                                     }
                                 )
                             } else {
-                                coroutineScope.launch { snackbarHostState.showSnackbar("Completa todos los campos.") }
+                                coroutineScope.launch { snackbarHostState.showSnackbar(emptyFieldsMessage) }
                             }
                         },
                         enabled = !isLoading,
                         colors = ButtonDefaults.buttonColors(containerColor = JuntateGreen),
                         shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth().height(50.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(modifier = Modifier.size(24.dp), color = White)
                         } else {
                             Text(
-                                text = "Crear cuenta",
+                                text = stringResource(id = R.string.register_create_account_button),
                                 color = White,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -215,9 +220,9 @@ fun RegisterScreen(
                         modifier = Modifier.clickable { onLoginClick() },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "¿Ya tienes una cuenta? ", color = White, fontSize = 14.sp)
+                        Text(text = stringResource(id = R.string.register_login_prompt), color = White, fontSize = 14.sp)
                         Text(
-                            text = "Inicia sesión",
+                            text = stringResource(id = R.string.register_login_button),
                             color = JuntateGreen,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
@@ -261,7 +266,7 @@ fun AuthInputField(
 
 @Composable
 fun SocialButton(
-    modifier: Modifier = Modifier, // ✅ Se añade el modifier como parámetro
+    modifier: Modifier = Modifier,
     icon: Int,
     text: String
 ) {
@@ -274,13 +279,13 @@ fun SocialButton(
         ),
         border = BorderStroke(1.dp, BorderGray),
         contentPadding = PaddingValues(horizontal = 12.dp),
-        modifier = modifier // ✅ Se aplica el modifier pasado desde fuera
+        modifier = modifier
             .height(48.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center // Centra el ícono y texto dentro del botón
+            horizontalArrangement = Arrangement.Center
         ) {
             Image(
                 painter = painterResource(id = icon),

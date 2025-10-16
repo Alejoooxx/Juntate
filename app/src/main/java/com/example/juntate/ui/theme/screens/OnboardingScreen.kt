@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,27 +55,20 @@ fun PortraitLayout(onStartClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 32.dp), // Padding general para dar aire arriba y abajo
+            .padding(vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // --- Sección Superior (Logo y Texto) ---
-        // Esta sección ahora ocupa el espacio que necesita, sin weight.
         HeaderContent()
 
-        // --- Sección Central (Ilustración) ---
-        // La imagen usa weight(1f) para ocupar todo el espacio sobrante.
-        // Esto la fuerza a encogerse en pantallas más cortas.
         Image(
             painter = painterResource(id = R.drawable.ic_onboarding_people),
-            contentDescription = "Personas entrenando",
+            contentDescription = stringResource(id = R.string.onboarding_image_description),
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f) // ✅ ESTA ES LA CLAVE DE LA SOLUCIÓN
+                .weight(1f)
                 .padding(vertical = 24.dp)
         )
 
-        // --- Sección Inferior (Botón) ---
-        // Esta sección ocupa el espacio que necesita al final.
         StartButton(onClick = onStartClick)
     }
 }
@@ -82,7 +76,9 @@ fun PortraitLayout(onStartClick: () -> Unit) {
 @Composable
 fun LandscapeLayout(onStartClick: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(32.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -99,7 +95,7 @@ fun LandscapeLayout(onStartClick: () -> Unit) {
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_onboarding_people),
-                    contentDescription = "Personas entrenando",
+                    contentDescription = stringResource(id = R.string.onboarding_image_description),
                     modifier = Modifier.fillMaxHeight(0.8f)
                 )
             }
@@ -112,13 +108,13 @@ fun LandscapeLayout(onStartClick: () -> Unit) {
 fun HeaderContent() {
     Image(
         painter = painterResource(id = R.drawable.logoverde),
-        contentDescription = "Logo de Juntate",
+        contentDescription = stringResource(id = R.string.onboarding_logo_description),
         colorFilter = ColorFilter.tint(Color.White),
         modifier = Modifier.size(140.dp)
     )
     Spacer(modifier = Modifier.height(24.dp))
     Text(
-        text = "Encuentra tu equipo,\nentrena acompañado.",
+        text = stringResource(id = R.string.onboarding_headline),
         color = Color.White,
         fontSize = 30.sp,
         fontWeight = FontWeight.Bold,
@@ -140,7 +136,7 @@ fun StartButton(onClick: () -> Unit) {
             .height(55.dp)
     ) {
         Text(
-            text = "Empezar ahora",
+            text = stringResource(id = R.string.onboarding_start_button),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White
@@ -148,8 +144,6 @@ fun StartButton(onClick: () -> Unit) {
     }
 }
 
-
-// --- Previews ---
 @Preview(showBackground = true, device = "spec:width=411dp,height=891dp", name = "Phone Portrait Preview")
 @Composable
 fun OnboardingScreenPhonePreview() {

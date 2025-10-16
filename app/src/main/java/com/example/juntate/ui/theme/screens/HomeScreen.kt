@@ -1,5 +1,6 @@
 package com.example.juntate.ui.theme.screens
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,15 +29,15 @@ import com.example.juntate.R
 import com.example.juntate.ui.theme.*
 
 data class Sport(
-    val name: String,
+    @StringRes val nameResId: Int,
     val imageResId: Int,
     val imageAlignment: Alignment
 )
 
 val sportsList = listOf(
-    Sport("Fútbol", R.drawable.ic_futbol, Alignment.CenterStart),
-    Sport("Running", R.drawable.ic_running, Alignment.CenterEnd),
-    Sport("Gym", R.drawable.ic_gym, Alignment.CenterStart)
+    Sport(R.string.sport_soccer, R.drawable.ic_futbol, Alignment.CenterStart),
+    Sport(R.string.sport_running, R.drawable.ic_running, Alignment.CenterEnd),
+    Sport(R.string.sport_gym, R.drawable.ic_gym, Alignment.CenterStart)
 )
 
 val CardShineColor = Color(0x33FFFFFF)
@@ -43,7 +45,6 @@ val CardShineColor = Color(0x33FFFFFF)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    // Se envuelve el Scaffold en un Box para que el fondo ocupe toda la pantalla.
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -54,7 +55,6 @@ fun HomeScreen(navController: NavHostController) {
             )
     ) {
         Scaffold(
-            // El Scaffold se hace transparente para que se vea el fondo del Box.
             containerColor = Color.Transparent,
             bottomBar = { BottomNavigationBar(navController = navController) }
         ) { innerPadding ->
@@ -94,7 +94,7 @@ fun PhoneLayout() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
-                    text = sport.name,
+                    nameResId = sport.nameResId,
                     imageResId = sport.imageResId,
                     imageAlignment = sport.imageAlignment,
                     cardColor = PrimaryGreen
@@ -117,7 +117,7 @@ fun TabletLayout() {
             items(sportsList) { sport ->
                 SportCard(
                     modifier = Modifier.height(220.dp),
-                    text = sport.name,
+                    nameResId = sport.nameResId,
                     imageResId = sport.imageResId,
                     imageAlignment = sport.imageAlignment,
                     cardColor = PrimaryGreen
@@ -138,7 +138,7 @@ fun Header() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "¿Qué quieres practicar\nhoy?",
+            text = stringResource(id = R.string.home_header_title),
             color = Color.White,
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
@@ -151,11 +151,12 @@ fun Header() {
 @Composable
 fun SportCard(
     modifier: Modifier = Modifier,
-    text: String,
+    @StringRes nameResId: Int,
     imageResId: Int,
     cardColor: Color,
     imageAlignment: Alignment = Alignment.CenterStart
 ) {
+    val text = stringResource(id = nameResId)
     Card(
         shape = RoundedCornerShape(24.dp),
         modifier = modifier.clickable { /* TODO */ },
@@ -219,7 +220,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_book),
-                    contentDescription = "History",
+                    contentDescription = stringResource(id = R.string.bottom_nav_history),
                     modifier = Modifier.size(32.dp)
                 )
             },
@@ -234,7 +235,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_home),
-                    contentDescription = "Home",
+                    contentDescription = stringResource(id = R.string.bottom_nav_home),
                     modifier = Modifier.size(42.dp)
                 )
             },
@@ -251,7 +252,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_profile),
-                    contentDescription = "Profile",
+                    contentDescription = stringResource(id = R.string.bottom_nav_profile),
                     modifier = Modifier.size(42.dp)
                 )
             },

@@ -1,3 +1,77 @@
 <resources>
     <string name="app_name">Juntate</string>
+
+    //HomeScreen
+    <string name="home_header_title">¿Qué quieres practicar\nhoy?</string>
+    <string name="sport_soccer">Fútbol</string>
+    <string name="sport_running">Running</string>
+    <string name="sport_gym">Gym</string>
+
+    <string name="bottom_nav_history">History</string>
+    <string name="bottom_nav_home">Home</string>
+    <string name="bottom_nav_profile">Profile</string>
+
+
+    //LoginScreen
+    <string name="login_title">Iniciar Sesión</string>
+    <string name="login_logo_description">Logo de Juntate</string>
+    <string name="login_placeholder_email">Correo electrónico</string>
+    <string name="login_placeholder_password">Contraseña</string>
+    <string name="login_hide_password_description">Ocultar contraseña</string>
+    <string name="login_show_password_description">Mostrar contraseña</string>
+    <string name="login_forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="login_button">Iniciar sesión</string>
+    <string name="login_register_prompt">¿No tienes cuenta?</string>
+    <string name="login_register_button">Regístrate</string>
+    <string name="login_error_empty_fields">Por favor, completa ambos campos.</string>
+
+
+    //OboardingScreen
+    <string name="onboarding_image_description">Personas entrenando</string>
+    <string name="onboarding_logo_description">Logo de Juntate</string>
+    <string name="onboarding_headline">Encuentra tu equipo,\nentrena acompañado.</string>
+    <string name="onboarding_start_button">Empezar ahora</string>
+
+    //ProfileScreen
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="loading">Cargando…</string>
+    <string name="permission_denied">Permiso denegado</string>
+
+    <string name="profile_logout_button">Cerrar sesión</string>
+    <string name="profile_save_button">Guardar</string>
+    <string name="profile_edit_button">Editar Perfil</string>
+    <string name="profile_edit_icon_description">Editar</string>
+    <string name="profile_edit_photo_icon_description">Editar foto</string>
+    <string name="profile_picture_content_description">Foto de perfil</string>
+    <string name="profile_locked_field_description">Campo bloqueado</string>
+
+    <string name="profile_label_full_name">Nombre Completo</string>
+    <string name="profile_label_email">Correo Electrónico</string>
+    <string name="profile_label_birth_date">Fecha de nacimiento</string>
+    <string name="profile_label_location">Ubicación</string>
+
+    <string name="sport_level_placeholder">Escoger experiencia</string>
+    <string name="sport_level_beginner">Principiante</string>
+    <string name="sport_level_intermediate">Intermedio</string>
+    <string name="sport_level_advanced">Avanzado</string>
+
+    //RegisterScreen
+    <string name="register_logo_description">Logo de Juntate</string>
+    <string name="register_title">Regístrate</string>
+    <string name="register_placeholder_full_name">Nombre completo</string>
+    <string name="register_placeholder_email">Correo electrónico</string>
+    <string name="register_placeholder_password">Contraseña</string>
+    <string name="register_social_prompt">O regístrate con</string>
+    <string name="register_create_account_button">Crear cuenta</string>
+    <string name="register_login_prompt">¿Ya tienes una cuenta?</string>
+    <string name="register_login_button">Inicia sesión</string>
+
+    <string name="social_google">Google</string>
+    <string name="social_facebook">Facebook</string>
+    <string name="social_instagram">Instagram</string>
+    <string name="social_apple">Apple</string>
+
+    <string name="register_success_message">Registro Exitoso, puedes iniciar sesión.</string>
+    <string name="register_error_empty_fields">Completa todos los campos.</string>
 </resources>
