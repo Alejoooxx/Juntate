@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.juntate.R
@@ -113,10 +114,9 @@ fun ProfileScreen(navController: NavController) {
                     onClick = {
                         showDatePicker = false
                         datePickerState.selectedDateMillis?.let { millis ->
-                            val selectedDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-                            selectedDate.timeInMillis = millis
                             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                            editedBirthDate = formatter.format(selectedDate.time)
+                            formatter.timeZone = TimeZone.getTimeZone("UTC")
+                            editedBirthDate = formatter.format(Date(millis))
                         }
                     }
                 ) { Text(stringResource(id = R.string.dialog_ok)) }
@@ -180,6 +180,7 @@ fun ProfileScreen(navController: NavController) {
                 }
             )
         },
+        bottomBar = { BottomNavigationBar(navController = navController as NavHostController, currentScreen = "profile") },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { innerPadding ->
         BoxWithConstraints(
@@ -294,11 +295,15 @@ fun TabletProfileLayout(
     onProfilePictureClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Column(
-            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ProfileHeader(
@@ -317,7 +322,9 @@ fun TabletProfileLayout(
             )
         }
         Column(
-            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(24.dp))

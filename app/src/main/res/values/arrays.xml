@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    //Lista localidades
+    <string-array name="experiencia">
+        <item>Principante</item>
+        <item>Intermedio</item>
+        <item>Avanzado</item>
+    </string-array>
+
     <string-array name="bogota_localities">
         <item>Antonio Nariño</item>
         <item>Barrios Unidos</item>
@@ -24,4 +29,364 @@
         <item>Usaquén</item>
         <item>Usme</item>
     </string-array>
+
+    <string-array name="barrios_placeholder">
+        <item>Selecciona una localidad primero</item>
+    </string-array>
+
+    <string-array name="antonio_nariño">
+        <item>Restrepo</item>
+        <item>Restrepo Occidental</item>
+        <item>Policarpa</item>
+        <item>La Fragua</item>
+        <item>Ciudad Berna</item>
+        <item>Luna Park</item>
+        <item>Eduardo Frei</item>
+        <item>Santander</item>
+        <item>La Hortúa</item>
+        <item>Ciudad Jardín Sur</item>
+        <item>Sevilla</item>
+        <item>Villa Mayor</item>
+        <item>Santa Isabel Sur</item>
+        <item>Fátima</item>
+        <item>San Antonio</item>
+    </string-array>
+
+    <string-array name="barrios_unidos">
+        <item>Los Andes</item>
+        <item>San Felipe</item>
+        <item>Muequetá</item>
+        <item>Alcázares</item>
+        <item>La Esperanza</item>
+        <item>J.J. Vargas</item>
+        <item>Benjamín Herrera</item>
+        <item>San Fernando</item>
+        <item>Parque Central Bavaria</item> <item>Modelo Norte</item>
+        <item>Polo Club</item>
+        <item>Santa Sofía</item>
+        <item>El Campín</item> <item>Escuela Militar</item>
+        <item>Siete de Agosto</item>
+    </string-array>
+
+    <string-array name="bogota">
+        <item>Bogotá</item>
+
+    </string-array>
+    <string-array name="bosa">
+        <item>Bosa Centro</item>
+        <item>La Libertad</item>
+        <item>Porvenir</item>
+        <item>El Jardín</item>
+        <item>Naranjos</item>
+        <item>La Estación</item>
+        <item>Olarte</item>
+        <item>Laureles</item>
+        <item>San José</item>
+        <item>San Bernardino</item>
+        <item>San Antonio</item>
+        <item>Betania</item>
+        <item>Villa Sonia</item>
+        <item>Jiménez de Quesada</item>
+        <item>El Retazo</item>
+    </string-array>
+
+    <string-array name="chapinero">
+        <item>Chapinero Central</item>
+        <item>Chapinero Alto</item>
+        <item>El Nogal</item>
+        <item>La Cabrera</item>
+        <item>Rosales</item>
+        <item>El Chicó</item>
+        <item>El Retiro</item>
+        <item>Quinta Camacho</item>
+        <item>Pardo Rubio</item>
+        <item>Emaús</item>
+        <item>Antiguo Country</item>
+        <item>El Virrey</item>
+        <item>Lago Gaitán</item>
+        <item>Chicó Norte</item>
+        <item>Refugio</item>
+    </string-array>
+
+    <string-array name="ciudad_bolivar">
+        <item>Jerusalén</item>
+        <item>Meissen</item>
+        <item>Perdomo</item>
+        <item>Arborizadora Alta</item>
+        <item>Arborizadora Baja</item>
+        <item>Potosí</item>
+        <item>Sierra Morena</item>
+        <item>Caracolí</item>
+        <item>Candelaria la Nueva</item>
+        <item>Lucero Alto</item>
+        <item>Lucero Bajo</item>
+        <item>Juan Pablo II</item>
+        <item>Ismael Perdomo</item>
+        <item>Bella Flor</item>
+        <item>San Francisco</item>
+    </string-array>
+
+    <string-array name="engativa">
+        <item>Normandía</item>
+        <item>Álamos Norte</item>
+        <item>Garcés Navas</item>
+        <item>Boyacá Real</item>
+        <item>Villa Luz</item>
+        <item>Santa Cecilia</item>
+        <item>Bachué</item>
+        <item>Minuto de Dios</item>
+        <item>La Granja</item>
+        <item>El Cortijo</item>
+        <item>Bolivia</item>
+        <item>Santa Helenita</item>
+        <item>La Estrada</item>
+        <item>Florencia</item>
+        <item>Gran Granada</item>
+    </string-array>
+
+    <string-array name="fontibon">
+        <item>Modelia</item>
+        <item>Ciudad Salitre Occidental</item>
+        <item>Capellanía</item>
+        <item>Villemar</item>
+        <item>Fontibón Centro</item>
+        <item>Versalles</item>
+        <item>Atahualpa</item>
+        <item>Ferrocaja</item>
+        <item>San Pablo</item>
+        <item>Montevideo</item>
+        <item>Hayuelos</item>
+        <item>Puerta de Teja</item>
+        <item>Zona Franca</item>
+        <item>Sabana Grande</item>
+        <item>El Refugio</item>
+    </string-array>
+
+    <string-array name="kennedy">
+        <item>Castilla</item>
+        <item>Timiza</item>
+        <item>Carvajal</item>
+        <item>Mandalay</item>
+        <item>Marsella</item>
+        <item>Patio Bonito</item>
+        <item>Tintal</item>
+        <item>Américas Occidental</item>
+        <item>Ciudad Kennedy</item>
+        <item>Bavaria</item>
+        <item>Las Margaritas</item>
+        <item>Roma</item>
+        <item>Nuevo Techo</item>
+        <item>El Vergel</item>
+        <item>Villa Alsacia</item>
+    </string-array>
+
+    <string-array name="la_candelaria">
+        <item>La Candelaria Centro</item>
+        <item>Egipto Alto</item>
+        <item>Belén</item>
+        <item>Santa Bárbara</item>
+        <item>Las Aguas</item>
+        <item>Centro Histórico</item>
+        <item>Fátima</item>
+        <item>Los Laches</item>
+        <item>San Francisco</item>
+        <item>Las Brisas</item>
+        <item>Villa de Leyva (urbano)</item>
+        <item>El Guavio</item>
+        <item>San Agustín</item>
+        <item>Las Nieves (parte baja)</item>
+        <item>Las Cruces (colindante histórico)</item>
+    </string-array>
+
+    <string-array name="los_martires">
+        <item>Santa Fe Central</item> <item>San Victorino</item>
+        <item>Ricaurte</item>
+        <item>La Favorita</item>
+        <item>Santa Isabel</item>
+        <item>Voto Nacional</item>
+        <item>Paloquemao</item>
+        <item>San Façon</item>
+        <item>Eduardo Santos</item>
+        <item>Santa Inés</item>
+        <item>La Pepita</item>
+        <item>San Antonio</item>
+        <item>El Listón</item>
+        <item>Los Mártires Centro</item>
+        <item>El Progreso</item>
+    </string-array>
+
+    <string-array name="puente_aranda">
+        <item>Puente Aranda</item>
+        <item>La Asunción</item>
+        <item>Gorgonzola</item>
+        <item>Santa Matilde</item>
+        <item>Ciudad Montes</item>
+        <item>Alcalá</item>
+        <item>Tejar</item>
+        <item>San Rafael</item>
+        <item>La Camelia</item>
+        <item>Muzú</item> <item>Pradera</item>
+        <item>Industrial Centenario</item>
+        <item>La Pradera</item>
+        <item>Remanso</item>
+        <item>Zona Industrial</item>
+    </string-array>
+
+    <string-array name="rafael_uribe">
+        <item>Quiroga</item>
+        <item>Claret</item>
+        <item>Gustavo Restrepo</item>
+        <item>Olaya</item>
+        <item>Marruecos</item>
+        <item>Ospina Pérez</item>
+        <item>Marco Fidel Suárez</item>
+        <item>San Carlos</item> <item>La Picota</item>
+        <item>Palermo Sur</item>
+        <item>Bochica Sur</item>
+        <item>Santa Lucía</item>
+        <item>San José</item> <item>Molinos</item>
+        <item>Quiroga Sur</item>
+    </string-array>
+
+    <string-array name="san_cristobal">
+        <item>San Cristóbal Norte</item>
+        <item>San Cristóbal Sur</item>
+        <item>Los Libertadores</item>
+        <item>20 de Julio</item>
+        <item>La Victoria</item>
+        <item>Bello Horizonte</item>
+        <item>La Gloria</item>
+        <item>San Blas</item>
+        <item>La Cecilia</item>
+        <item>San Vicente</item>
+        <item>Buenos Aires</item>
+        <item>La Joyita</item>
+        <item>Santa Inés Sur</item>
+        <item>Los Alpes</item>
+        <item>Villa Javier</item>
+    </string-array>
+
+    <string-array name="santa_fe">
+        <item>Las Nieves</item>
+        <item>San Diego</item>
+        <item>La Merced</item>
+        <item>La Perseverancia</item>
+        <item>Santa Inés</item>
+        <item>San Martín</item>
+        <item>Bosque Izquierdo</item>
+        <item>Lourdes</item>
+        <item>Las Cruces</item>
+        <item>El Dorado</item>
+        <item>Germania</item>
+        <item>La Alameda</item>
+        <item>Samper Mendoza</item>
+        <item>Egipto</item>
+        <item>La Concordia</item>
+    </string-array>
+
+    <string-array name="suba">
+        <item>Niza</item>
+        <item>Colina Campestre</item>
+        <item>San José de Bavaria</item>
+        <item>Prado Veraniego</item>
+        <item>Prado Pinzón</item>
+        <item>Mazurén</item>
+        <item>La Alhambra</item>
+        <item>Britalia</item>
+        <item>Lisboa</item>
+        <item>Pinar de Suba</item>
+        <item>Aures</item>
+        <item>La Gaitana</item>
+        <item>Tibabuyes</item>
+        <item>Villa del Prado</item>
+        <item>Pontevedra</item>
+    </string-array>
+
+    <string-array name="sumapaz">
+        <item>Nazareth</item>
+        <item>San Juan</item>
+        <item>Betania</item>
+        <item>Las Ánimas</item>
+        <item>La Unión</item>
+        <item>San Antonio</item>
+        <item>Lagunitas</item>
+        <item>Santo Domingo</item>
+        <item>Las Delicias</item>
+        <item>San Miguel</item>
+        <item>Las Mercedes</item>
+        <item>San Luis</item>
+        <item>El Salitre</item>
+        <item>El Hato</item>
+        <item>Santa Rosa</item>
+    </string-array>
+
+    <string-array name="teusaquillo">
+        <item>Teusaquillo</item>
+        <item>La Soledad</item>
+        <item>Palermo</item>
+        <item>Galerías</item>
+        <item>Nicolás de Federmán</item>
+        <item>Campín</item>
+        <item>Alfonso López</item>
+        <item>Quesada</item>
+        <item>Armenia</item>
+        <item>La Magdalena</item>
+        <item>Parque Central Bavaria</item> <item>La Esmeralda</item>
+        <item>Florida</item> <item>Pablo VI</item>
+        <item>Ciudad Salitre Oriental</item> </string-array>
+
+    <string-array name="tunjuelito">
+        <item>Venecia</item>
+        <item>San Carlos</item>
+        <item>Fátima</item>
+        <item>Tunal</item>
+        <item>El Carmen</item>
+        <item>San Benito</item>
+        <item>San Vicente Ferrer</item>
+        <item>Nuevo Muzu</item>
+        <item>Isla del Sol</item>
+        <item>Fátima Sur</item>
+        <item>Villa del Río</item>
+        <item>San Vicente II</item>
+        <item>San Vicente I</item>
+        <item>Muzú</item>
+        <item>San Benito Occidental</item>
+    </string-array>
+
+    <string-array name="usaquen">
+        <item>Cedritos</item>
+        <item>Santa Bárbara</item>
+        <item>Santa Ana</item>
+        <item>Santa Paula</item>
+        <item>La Carolina</item>
+        <item>Country Club</item>
+        <item>El Contador</item>
+        <item>San Patricio</item>
+        <item>Bella Suiza</item>
+        <item>Usaquén</item>
+        <item>Toberín</item>
+        <item>La Calleja</item>
+        <item>San Antonio Norte</item>
+        <item>Cedro Golf</item>
+        <item>Molinos Norte</item>
+    </string-array>
+
+    <string-array name="usme">
+        <item>Usme Pueblo</item>
+        <item>Danubio</item>
+        <item>Santa Librada</item>
+        <item>Yomasa</item>
+        <item>Alfonso López</item>
+        <item>Gran Yomasa</item>
+        <item>Marichuela</item>
+        <item>El Virrey</item>
+        <item>La Requilina</item>
+        <item>El Uval</item>
+        <item>La Andrea</item>
+        <item>Comuneros</item>
+        <item>Santa Marta</item>
+        <item>Monte Blanco</item>
+        <item>El Bosque</item>
+    </string-array>
+
 </resources>

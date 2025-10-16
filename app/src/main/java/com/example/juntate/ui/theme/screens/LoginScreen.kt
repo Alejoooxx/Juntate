@@ -211,7 +211,7 @@ fun LoginContent(
                         text = stringResource(id = R.string.login_forgot_password),
                         color = TextGray,
                         fontSize = 14.sp,
-                        modifier = Modifier.align(Alignment.Center).clickable { /* TODO */ }
+                        modifier = Modifier.align(Alignment.Center).clickable { /* Olvido Contraseña */ }
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -108,6 +109,51 @@ fun AppNavigation(
 
         composable("profile") {
             ProfileScreen(navController = navController)
+        }
+
+        composable("futbol_screen") {
+            FutbolScreen(navController = navController)
+        }
+        composable("fut_event_screen") {
+            FutEventScreen(navController = navController)
+        }
+
+        composable("history") {
+            EventHistoryScreen(navController = navController)
+        }
+
+        composable(
+            route = "event_details/{sportType}/{eventId}",
+            arguments = listOf(
+                navArgument("sportType") { type = NavType.StringType },
+                navArgument("eventId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val sportType = backStackEntry.arguments?.getString("sportType")
+            val eventId = backStackEntry.arguments?.getString("eventId")
+            if (sportType != null && eventId != null) {
+                EventDetailsScreen(
+                    navController = navController,
+                    sportType = sportType,
+                    eventId = eventId
+                )
+            } else {
+                Text("Error: Faltan datos para cargar el evento.")
+            }
+        }
+
+        composable("running_screen") {
+            RunningScreen(navController = navController)
+        }
+        composable("run_event_screen") {
+            RunEventScreen(navController = navController)
+        }
+
+        composable("gym_screen") {
+            GymScreen(navController = navController)
+        }
+        composable("gym_event_screen") {
+            GymEventScreen(navController = navController)
         }
     }
 }

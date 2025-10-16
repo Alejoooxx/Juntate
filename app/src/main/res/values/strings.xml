@@ -6,7 +6,6 @@
     <string name="sport_soccer">Fútbol</string>
     <string name="sport_running">Running</string>
     <string name="sport_gym">Gym</string>
-
     <string name="bottom_nav_history">History</string>
     <string name="bottom_nav_home">Home</string>
     <string name="bottom_nav_profile">Profile</string>
@@ -45,12 +44,10 @@
     <string name="profile_edit_photo_icon_description">Editar foto</string>
     <string name="profile_picture_content_description">Foto de perfil</string>
     <string name="profile_locked_field_description">Campo bloqueado</string>
-
     <string name="profile_label_full_name">Nombre Completo</string>
     <string name="profile_label_email">Correo Electrónico</string>
     <string name="profile_label_birth_date">Fecha de nacimiento</string>
     <string name="profile_label_location">Ubicación</string>
-
     <string name="sport_level_placeholder">Escoger experiencia</string>
     <string name="sport_level_beginner">Principiante</string>
     <string name="sport_level_intermediate">Intermedio</string>
@@ -66,12 +63,88 @@
     <string name="register_create_account_button">Crear cuenta</string>
     <string name="register_login_prompt">¿Ya tienes una cuenta?</string>
     <string name="register_login_button">Inicia sesión</string>
-
     <string name="social_google">Google</string>
     <string name="social_facebook">Facebook</string>
     <string name="social_instagram">Instagram</string>
     <string name="social_apple">Apple</string>
-
     <string name="register_success_message">Registro Exitoso, puedes iniciar sesión.</string>
     <string name="register_error_empty_fields">Completa todos los campos.</string>
+
+
+    //FutbolScreen
+    <string name="futbol_screen_title">Eventos de Fútbol</string>
+    <string name="event_card_location_icon_desc">Icono de ubicación</string>
+    <string name="event_card_join_button">Unirse</string>
+    <string name="event_card_complete_button">Completo</string>
+    <string name="create_event_fab_desc">Crear Evento</string>
+    <string name="back_button_description">Volver atrás</string> <string name="sample_event_title_1">Centro Felicidad Chapinero</string>
+    <string name="sample_event_datetime_1">Sábado, 21 de septiembre\n4:00 PM</string>
+    <string name="sample_event_location_1">Chapinero - Lourdes</string>
+    <string name="sample_event_title_2">Parque 7 canchas</string>
+    <string name="sample_event_datetime_2">Viernes, 13 de septiembre\n8:00 AM</string>
+    <string name="sample_event_location_2">Engativa - Cortijo</string>
+
+
+    //FutEventScreen
+    <string name="fut_event_screen_title">Crear Evento</string>
+    <string name="fut_event_field_name_label">Nombre del evento</string>
+    <string name="fut_event_field_name_placeholder">Ej: Partido Amistoso Cancha X</string> <string name="fut_event_field_datetime_label">Fecha y hora</string>
+    <string name="fut_event_field_datetime_placeholder">Seleccionar fecha y hora</string> <string name="fut_event_field_location_label">Ubicación</string>
+    <string name="fut_event_field_location_placeholder">Seleccionar ubicación</string> <string name="fut_event_field_level_label">Nivel recomendado</string>
+    <string name="fut_event_field_level_placeholder">Seleccionar nivel</string> <string name="fut_event_field_notes_label">Notas adicionales (opcional)</string>
+    <string name="fut_event_field_notes_placeholder">Ej: Traer peto rojo, Cancha sintética</string> <string name="fut_event_create_button">Crear evento de Fútbol</string>
+    <string name="icon_desc_calendar">Icono de calendario</string>
+    <string name="icon_desc_location">Icono de ubicación</string>
+    <string name="icon_desc_level">Icono de nivel</string>
+    <string name="fut_event_field_locality_label">Localidad</string>
+    <string name="fut_event_field_locality_placeholder">Seleccionar localidad</string>
+    <string name="fut_event_field_neighborhood_label">Barrio</string>
+    <string name="fut_event_field_neighborhood_placeholder">Seleccionar barrio</string>
+    <string name="icon_desc_neighborhood">Icono de barrio</string>
+    <string name="select_locality_first">Selecciona una localidad primero</string>
+    <string name="fut_event_field_date_label">Fecha</string>
+    <string name="fut_event_field_date_placeholder">Seleccionar fecha</string>
+    <string name="fut_event_field_time_label">Hora</string>
+    <string name="fut_event_field_time_placeholder">Seleccionar hora</string>
+    <string name="icon_desc_time">Icono de reloj</string>
+    <string name="run_event_field_name_placeholder">Ej: Trote Grupal Parque Simón Bolívar</string> <string name="run_event_field_datetime_label">Fecha y hora</string>
+    <string name="gym_event_field_name_placeholder">Ej: Entrenamiento Pierna Grupal Smartfit</string> <string name="gym_event_field_datetime_label">Fecha y hora</string>
+
+
+    //EventHistoryScreen
+    <string name="history_screen_title">Mis eventos</string>
+    <string name="history_tab_current">Eventos actuales</string>
+    <string name="history_tab_past">Historial de eventos</string>
+    <string name="history_card_details_button">Ver detalles</string>
+    <string name="history_card_status_upcoming">Próximo</string>
+    <string name="sample_history_title_1">Smart Fit Cedritos</string>
+    <string name="sample_history_datetime_1">Domingo, 15 de septiembre\n8:00 AM</string>
+    <string name="sample_history_location_1">Chapinero - Centro internacional</string>
+    <string name="sample_history_title_2">Smart Fit Cedritos</string>
+    <string name="sample_history_datetime_2">Jueves, 19 de septiembre\n6:00 PM</string>
+    <string name="sample_history_location_2">Usaquén - Cedritos</string>
+    <string name="sample_history_title_3">Centro Felicidad Chapinero</string>
+    <string name="sample_history_datetime_3">Sábado, 21 de septiembre\n4:00 PM</string>
+    <string name="sample_history_location_3">Chapinero - Lourdes</string>
+
+
+    //EventDetailsScreen
+    <string name="event_details_screen_title">Detalles del Evento</string> <string name="event_details_participants_title">Participantes</string>
+    <string name="event_details_chat_button">Chat grupal</string>
+    <string name="icon_desc_participants">Icono de participantes</string>
+    <string name="icon_desc_notes">Icono de notas</string>
+    <string name="icon_desc_options">Icono de opciones</string>
+    <string name="sample_detail_title">Ciclovía Carrera 7</string>
+    <string name="sample_detail_datetime">Domingo, 15 de septiembre\n8:00 AM</string>
+    <string name="sample_detail_location">Chapinero - Centro internacional</string>
+    <string name="sample_detail_participants">8/10 Jugadores</string>
+    <string name="sample_detail_notes">Traer camisa blanca</string>
+    <string name="sample_participant_1">Javier López</string>
+    <string name="sample_participant_2">Carlos Pérez</string>
+    <string name="sample_participant_3">Adrian Diaz</string>
+    <string name="sample_participant_4">Martín Gómez</string>
+    <string name="sample_participant_5">Manuel Carranza</string>
+    <string name="sample_participant_6">Camilo Saldaña</string>
+    <string name="sample_participant_7">Carlos Aldana</string>
+
 </resources>
