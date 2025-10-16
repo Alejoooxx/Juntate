@@ -56,7 +56,7 @@ fun HomeScreen(navController: NavHostController) {
     ) {
         Scaffold(
             containerColor = Color.Transparent,
-            bottomBar = { BottomNavigationBar(navController = navController) }
+            bottomBar = { BottomNavigationBar(navController = navController, currentScreen = "home") }
         ) { innerPadding ->
             BoxWithConstraints(
                 modifier = Modifier
@@ -208,12 +208,13 @@ fun SportCard(
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController) {
+fun BottomNavigationBar(navController: NavHostController, currentScreen: String) {
     NavigationBar(
         containerColor = PrimaryGreen,
         contentColor = Color.White,
         modifier = Modifier.height(80.dp)
     ) {
+        // History Item
         NavigationBarItem(
             selected = false,
             onClick = { /* TODO */ },
@@ -221,7 +222,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_book),
                     contentDescription = stringResource(id = R.string.bottom_nav_history),
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(32.dp) // Tamaño independiente
                 )
             },
             colors = NavigationBarItemDefaults.colors(
@@ -229,34 +230,46 @@ fun BottomNavigationBar(navController: NavHostController) {
                 indicatorColor = PrimaryLightGreen
             )
         )
+
+        // Home Item
         NavigationBarItem(
-            selected = true,
-            onClick = { /* TODO */ },
+            selected = currentScreen == "home",
+            onClick = {
+                if (currentScreen != "home") {
+                    navController.navigate("home")
+                }
+            },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_home),
                     contentDescription = stringResource(id = R.string.bottom_nav_home),
-                    modifier = Modifier.size(42.dp)
+                    modifier = Modifier.size(38.dp) // Tamaño independiente y más grande por estar seleccionado
                 )
             },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color.White,
+                unselectedIconColor = Color.White,
                 indicatorColor = PrimaryLightGreen
             )
         )
+
+        // Profile Item
         NavigationBarItem(
-            selected = false,
+            selected = currentScreen == "profile",
             onClick = {
-                navController.navigate("profile")
+                if (currentScreen != "profile") {
+                    navController.navigate("profile")
+                }
             },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_profile),
                     contentDescription = stringResource(id = R.string.bottom_nav_profile),
-                    modifier = Modifier.size(42.dp)
+                    modifier = Modifier.size(38.dp) // Tamaño independiente
                 )
             },
             colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,
                 unselectedIconColor = Color.White,
                 indicatorColor = PrimaryLightGreen
             )
