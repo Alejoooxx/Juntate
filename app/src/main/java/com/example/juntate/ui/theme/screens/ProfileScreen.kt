@@ -114,10 +114,9 @@ fun ProfileScreen(navController: NavController) {
                     onClick = {
                         showDatePicker = false
                         datePickerState.selectedDateMillis?.let { millis ->
-                            val selectedDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-                            selectedDate.timeInMillis = millis
                             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                            editedBirthDate = formatter.format(selectedDate.time)
+                            formatter.timeZone = TimeZone.getTimeZone("UTC")
+                            editedBirthDate = formatter.format(Date(millis))
                         }
                     }
                 ) { Text(stringResource(id = R.string.dialog_ok)) }

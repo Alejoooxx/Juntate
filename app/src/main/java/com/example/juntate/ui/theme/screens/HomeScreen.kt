@@ -5,9 +5,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -45,7 +47,10 @@ val CardShineColor = Color(0x33FFFFFF)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    Box(
+    Scaffold(
+        topBar = { Header() },
+        bottomBar = { BottomNavigationBar(navController = navController, currentScreen = "home") },
+        containerColor = Color.Transparent,
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -53,21 +58,16 @@ fun HomeScreen(navController: NavHostController) {
                     colors = listOf(White, TextGray)
                 )
             )
-    ) {
-        Scaffold(
-            containerColor = Color.Transparent,
-            bottomBar = { BottomNavigationBar(navController = navController, currentScreen = "home") }
-        ) { innerPadding ->
-            BoxWithConstraints(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-            ) {
-                if (maxWidth < 600.dp) {
-                    PhoneLayout()
-                } else {
-                    TabletLayout()
-                }
+    ) { innerPadding ->
+        BoxWithConstraints(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            if (maxWidth < 600.dp) {
+                PhoneLayout()
+            } else {
+                TabletLayout()
             }
         }
     }
@@ -75,77 +75,66 @@ fun HomeScreen(navController: NavHostController) {
 
 @Composable
 fun PhoneLayout() {
-    Column(
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        contentPadding = PaddingValues(vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Header()
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            sportsList.forEach { sport ->
-                SportCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    nameResId = sport.nameResId,
-                    imageResId = sport.imageResId,
-                    imageAlignment = sport.imageAlignment,
-                    cardColor = PrimaryGreen
-                )
-            }
+        items(sportsList) { sport ->
+            SportCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp)
+                    .padding(horizontal = 24.dp),
+                nameResId = sport.nameResId,
+                imageResId = sport.imageResId,
+                imageAlignment = sport.imageAlignment,
+                cardColor = PrimaryGreen
+            )
         }
     }
 }
 
 @Composable
 fun TabletLayout() {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Header()
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(sportsList) { sport ->
-                SportCard(
-                    modifier = Modifier.height(220.dp),
-                    nameResId = sport.nameResId,
-                    imageResId = sport.imageResId,
-                    imageAlignment = sport.imageAlignment,
-                    cardColor = PrimaryGreen
-                )
-            }
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        contentPadding = PaddingValues(24.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(sportsList) { sport ->
+            SportCard(
+                modifier = Modifier.height(220.dp),
+                nameResId = sport.nameResId,
+                imageResId = sport.imageResId,
+                imageAlignment = sport.imageAlignment,
+                cardColor = PrimaryGreen
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Header() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(PrimaryGreen)
-            .windowInsetsPadding(WindowInsets.statusBars)
-            .padding(vertical = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = stringResource(id = R.string.home_header_title),
-            color = Color.White,
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            lineHeight = 32.sp
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = stringResource(id = R.string.home_header_title),
+                color = Color.White,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                lineHeight = 32.sp,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        windowInsets = WindowInsets.statusBars.only(WindowInsetsSides.Top),
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = PrimaryGreen
         )
-    }
+    )
 }
 
 @Composable
@@ -177,7 +166,6 @@ fun SportCard(
                         )
                     )
             )
-
             Image(
                 painter = painterResource(id = imageResId),
                 contentDescription = text,
@@ -189,13 +177,11 @@ fun SportCard(
                         x = if (imageAlignment == Alignment.CenterStart) (-40).dp else 40.dp
                     )
             )
-
             val textAlignment = if (imageAlignment == Alignment.CenterStart) {
                 BiasAlignment(horizontalBias = 0.5f, verticalBias = 0f)
             } else {
                 BiasAlignment(horizontalBias = -0.5f, verticalBias = 0f)
             }
-
             Text(
                 text = text,
                 color = Color.White,
@@ -214,7 +200,6 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
         contentColor = Color.White,
         modifier = Modifier.height(80.dp)
     ) {
-        // History Item
         NavigationBarItem(
             selected = false,
             onClick = { /* TODO */ },
@@ -222,7 +207,7 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
                 Icon(
                     painter = painterResource(id = R.drawable.ic_book),
                     contentDescription = stringResource(id = R.string.bottom_nav_history),
-                    modifier = Modifier.size(32.dp) // Tamaño independiente
+                    modifier = Modifier.size(32.dp)
                 )
             },
             colors = NavigationBarItemDefaults.colors(
@@ -230,8 +215,6 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
                 indicatorColor = PrimaryLightGreen
             )
         )
-
-        // Home Item
         NavigationBarItem(
             selected = currentScreen == "home",
             onClick = {
@@ -243,7 +226,7 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
                 Icon(
                     painter = painterResource(id = R.drawable.ic_home),
                     contentDescription = stringResource(id = R.string.bottom_nav_home),
-                    modifier = Modifier.size(38.dp) // Tamaño independiente y más grande por estar seleccionado
+                    modifier = Modifier.size(38.dp)
                 )
             },
             colors = NavigationBarItemDefaults.colors(
@@ -252,8 +235,6 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
                 indicatorColor = PrimaryLightGreen
             )
         )
-
-        // Profile Item
         NavigationBarItem(
             selected = currentScreen == "profile",
             onClick = {
@@ -265,7 +246,7 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
                 Icon(
                     painter = painterResource(id = R.drawable.ic_profile),
                     contentDescription = stringResource(id = R.string.bottom_nav_profile),
-                    modifier = Modifier.size(38.dp) // Tamaño independiente
+                    modifier = Modifier.size(38.dp)
                 )
             },
             colors = NavigationBarItemDefaults.colors(
