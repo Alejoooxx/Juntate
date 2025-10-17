@@ -74,4 +74,21 @@
 
     <string name="register_success_message">Registro Exitoso, puedes iniciar sesión.</string>
     <string name="register_error_empty_fields">Completa todos los campos.</string>
+
+
+    //FutbolScreen
+    <string name="futbol_screen_title">Eventos de Fútbol</string>
+    <string name="event_card_location_icon_desc">Icono de ubicación</string>
+    <string name="event_card_join_button">Unirse</string>
+    <string name="event_card_complete_button">Completo</string>
+    <string name="create_event_fab_desc">Crear Evento</string>
+    <string name="back_button_description">Volver atrás</string> <string name="sample_event_title_1">Centro Felicidad Chapinero</string>
+    <string name="sample_event_datetime_1">Sábado, 21 de septiembre\n4:00 PM</string>
+    <string name="sample_event_location_1">Chapinero - Lourdes</string>
+    <string name="sample_event_title_2">Parque 7 canchas</string>
+    <string name="sample_event_datetime_2">Viernes, 13 de septiembre\n8:00 AM</string>
+    <string name="sample_event_location_2">Engativa - Cortijo</string>
+
+
+    //
 </resources>

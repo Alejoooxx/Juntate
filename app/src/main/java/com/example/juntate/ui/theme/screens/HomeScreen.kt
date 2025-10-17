@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.items // Keep grid items import
+import androidx.compose.foundation.lazy.items // Keep lazy items import
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -65,16 +65,18 @@ fun HomeScreen(navController: NavHostController) {
                 .fillMaxSize()
         ) {
             if (maxWidth < 600.dp) {
-                PhoneLayout()
+                // Pass navController down
+                PhoneLayout(navController = navController)
             } else {
-                TabletLayout()
+                // Pass navController down
+                TabletLayout(navController = navController)
             }
         }
     }
 }
 
 @Composable
-fun PhoneLayout() {
+fun PhoneLayout(navController: NavHostController) { // Accept navController
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 24.dp),
@@ -89,14 +91,15 @@ fun PhoneLayout() {
                 nameResId = sport.nameResId,
                 imageResId = sport.imageResId,
                 imageAlignment = sport.imageAlignment,
-                cardColor = PrimaryGreen
+                cardColor = PrimaryGreen,
+                navController = navController // Pass navController down
             )
         }
     }
 }
 
 @Composable
-fun TabletLayout() {
+fun TabletLayout(navController: NavHostController) { // Accept navController
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(24.dp),
@@ -109,7 +112,8 @@ fun TabletLayout() {
                 nameResId = sport.nameResId,
                 imageResId = sport.imageResId,
                 imageAlignment = sport.imageAlignment,
-                cardColor = PrimaryGreen
+                cardColor = PrimaryGreen,
+                navController = navController // Pass navController down
             )
         }
     }
@@ -143,12 +147,20 @@ fun SportCard(
     @StringRes nameResId: Int,
     imageResId: Int,
     cardColor: Color,
-    imageAlignment: Alignment = Alignment.CenterStart
+    imageAlignment: Alignment = Alignment.CenterStart,
+    navController: NavHostController // Accept navController
 ) {
     val text = stringResource(id = nameResId)
     Card(
         shape = RoundedCornerShape(24.dp),
-        modifier = modifier.clickable { /* TODO */ },
+        modifier = modifier.clickable {
+            // ✅ NAVEGACIÓN AÑADIDA AQUÍ
+            when (nameResId) {
+                R.string.sport_soccer -> navController.navigate("futbol_screen") // Usa la ruta correcta
+                R.string.sport_running -> { /* TODO: Navigate to RunningScreen */ }
+                R.string.sport_gym -> { /* TODO: Navigate to GymScreen */ }
+            }
+        },
         colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Box(
@@ -193,6 +205,7 @@ fun SportCard(
     }
 }
 
+// ✅ BottomNavigationBar MANTENIDO EN ESTE ARCHIVO
 @Composable
 fun BottomNavigationBar(navController: NavHostController, currentScreen: String) {
     NavigationBar(
@@ -219,7 +232,10 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
             selected = currentScreen == "home",
             onClick = {
                 if (currentScreen != "home") {
-                    navController.navigate("home")
+                    navController.navigate("home"){
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             },
             icon = {
@@ -239,7 +255,10 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
             selected = currentScreen == "profile",
             onClick = {
                 if (currentScreen != "profile") {
-                    navController.navigate("profile")
+                    navController.navigate("profile"){
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             },
             icon = {

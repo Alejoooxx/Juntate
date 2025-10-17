@@ -109,5 +109,9 @@ fun AppNavigation(
         composable("profile") {
             ProfileScreen(navController = navController)
         }
+
+        composable("futbol_screen") {
+            FutbolScreen(navController = navController)
+        }
     }
 }
