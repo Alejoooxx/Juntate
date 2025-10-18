@@ -90,5 +90,29 @@
     <string name="sample_event_location_2">Engativa - Cortijo</string>
 
 
+    //FutEventScreen
+    <string name="fut_event_screen_title">Crear Evento</string>
+    <string name="fut_event_field_name_label">Nombre del evento</string>
+    <string name="fut_event_field_name_placeholder">Ej: Partido Amistoso Cancha X</string> <string name="fut_event_field_datetime_label">Fecha y hora</string>
+    <string name="fut_event_field_datetime_placeholder">Seleccionar fecha y hora</string> <string name="fut_event_field_location_label">Ubicación</string>
+    <string name="fut_event_field_location_placeholder">Seleccionar ubicación</string> <string name="fut_event_field_level_label">Nivel recomendado (opcional)</string>
+    <string name="fut_event_field_level_placeholder">Seleccionar nivel</string> <string name="fut_event_field_notes_label">Notas adicionales (opcional)</string>
+    <string name="fut_event_field_notes_placeholder">Ej: Traer peto rojo, Cancha sintética</string> <string name="fut_event_create_button">Crear evento</string>
+    <string name="icon_desc_calendar">Icono de calendario</string>
+    <string name="icon_desc_location">Icono de ubicación</string>
+    <string name="icon_desc_level">Icono de nivel</string>
+    <string name="fut_event_field_locality_label">Localidad</string>
+    <string name="fut_event_field_locality_placeholder">Seleccionar localidad</string>
+    <string name="fut_event_field_neighborhood_label">Barrio</string>
+    <string name="fut_event_field_neighborhood_placeholder">Seleccionar barrio</string>
+    <string name="icon_desc_neighborhood">Icono de barrio</string>
+    <string name="select_locality_first">Selecciona una localidad primero</string>
+    <string name="fut_event_field_date_label">Fecha</string>
+    <string name="fut_event_field_date_placeholder">Seleccionar fecha</string>
+    <string name="fut_event_field_time_label">Hora</string>
+    <string name="fut_event_field_time_placeholder">Seleccionar hora</string>
+    <string name="icon_desc_time">Icono de reloj</string>
+
+
     //
 </resources>

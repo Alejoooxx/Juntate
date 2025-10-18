@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    //Nivel de experiencia
+    <string-array name="experiencia">
+        <item>Principante</item>
+        <item>Intermedio</item>
+        <item>Avanzado</item>
+    </string-array>
+
     //Lista localidades
     <string-array name="bogota_localities">
         <item>Antonio Nariño</item>
@@ -24,4 +31,157 @@
         <item>Usaquén</item>
         <item>Usme</item>
     </string-array>
+
+    //Seleccionar localidad
+    <string-array name="barrios_placeholder">
+        <item>Selecciona una localidad primero</item>
+    </string-array>
+
+    //Barrios Antonio Nariño
+    <string-array name="antonio_nariño">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Barrios Unidos
+    <string-array name="barrios_unidos">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Bogotá D.C
+    <string-array name="bogota">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Bosa
+    <string-array name="bosa">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Chapinero
+    <string-array name="chapinero">
+        <item>Chapinero Central</item>
+        <item>Chicó</item>
+        <item>Rosales</item>
+    </string-array>
+
+
+    //Barrios Ciudad Bolivar
+    <string-array name="ciudad_bolivar">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Engativá
+    <string-array name="engativa">
+        <item>Álamos</item>
+        <item>Alameda</item>
+        <item>Bolivia</item>
+        <item>Boyacá Real</item>
+        <item>Engativá Centro</item>
+        <item>El Dorado</item>
+        <item>Garcés Navas</item>
+        <item>Jardín Botánico</item>
+        <item>Las Ferias</item>
+        <item>Laureles</item>
+        <item>Minuto de Dios</item>
+        <item>Normandía</item>
+        <item>Santa Cecilia</item>
+        <item>Santa Cecilia</item>
+        <item>Santa Helenita</item>
+        <item>Villas de Granada</item>
+        <item>Villa Luz</item>
+    </string-array>
+
+
+    //Barrios Fontibon
+    <string-array name="fontibon">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Kennedy
+    <string-array name="kennedy">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios La Candelaria
+    <string-array name="la_candelaria">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Los Martires
+    <string-array name="los_martires">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Puente Aranda
+    <string-array name="puente_aranda">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Rafael Uribe Uribe
+    <string-array name="rafael_uribe">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios San Cristobal
+    <string-array name="san_cristobal">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Santa Fe
+    <string-array name="santa_fe">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Suba
+    <string-array name="suba">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Sumapaz
+    <string-array name="sumapaz">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Teusaquillo
+    <string-array name="teusaquillo">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Tunjuelito
+    <string-array name="tunjuelito">
+        <item>Barrio</item>
+    </string-array>
+
+
+    //Barrios Usaquen
+    <string-array name="usaquen">
+        <item>Santa Bárbara</item>
+        <item>Usaquén Centro</item>
+        <item>Cedritos</item>
+    </string-array>
+
+
+    //Barrios Usme
+    <string-array name="usme">
+        <item>Barrio</item>
+    </string-array>
+
+
+
 </resources>

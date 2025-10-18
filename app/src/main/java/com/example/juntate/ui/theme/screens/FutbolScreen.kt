@@ -33,7 +33,6 @@ import com.example.juntate.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-// El nombre de la función ya es FutbolScreen
 fun FutbolScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
@@ -49,18 +48,20 @@ fun FutbolScreen(navController: NavHostController) {
                         modifier = Modifier.fillMaxWidth()
                     )
                 },
-                // ✅ SE ELIMINA el parámetro navigationIcon
+                // navigationIcon removed
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = PrimaryGreen
                 )
             )
         },
         bottomBar = {
+            // Ensure this function is defined/imported correctly
             BottomNavigationBar(navController = navController, currentScreen = "futbol_screen")
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: Navegar a Create Event Screen */ },
+                // ✅ ACTION: Navigate to the create event screen route
+                onClick = { navController.navigate("fut_event_screen") },
                 containerColor = PrimaryGreen,
                 contentColor = Color.White
             ) {
