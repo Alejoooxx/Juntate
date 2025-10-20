@@ -30,8 +30,11 @@ import com.example.juntate.R
 import com.example.juntate.ui.theme.*
 import com.example.juntate.viewmodel.Event
 import com.example.juntate.viewmodel.EventViewModel
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import java.util.Calendar
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +74,21 @@ fun EventHistoryScreen(navController: NavHostController) {
                 )
             )
     ) { innerPadding ->
+
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val startOfTodayTimestamp = Timestamp(calendar.time)
+
+        val (currentEvents, pastEvents) = userEvents.partition {
+            (it.eventTimestamp ?: it.createdAt ?: Timestamp(Date(0))) >= startOfTodayTimestamp
+        }
+
+        val itemsToShow = if (selectedTabIndex == 0) currentEvents else pastEvents
+        val isListEmpty = itemsToShow.isEmpty()
+
         when {
             currentUserUid != null && isLoading -> {
                 Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
@@ -91,7 +109,22 @@ fun EventHistoryScreen(navController: NavHostController) {
                     Log.d("EventHistoryScreen", "Mostrando mensaje 'Sin eventos'.")
                 }
             }
-            userEvents.isNotEmpty() -> {
+            !isLoading && isListEmpty -> {
+                Box(
+                    modifier = Modifier.padding(innerPadding).fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val message = if (selectedTabIndex == 0) "No tienes eventos próximos." else "Aún no tienes eventos pasados."
+                    Text(
+                        text = message,
+                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        color = MediumGray,
+                        fontSize = 18.sp
+                    )
+                }
+            }
+            userEvents.isNotEmpty() && !isLoading -> {
                 LazyColumn(
                     modifier = Modifier
                         .padding(innerPadding)
@@ -99,35 +132,17 @@ fun EventHistoryScreen(navController: NavHostController) {
                     contentPadding = PaddingValues(vertical = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    val itemsToShow = if (selectedTabIndex == 0) {
-                        userEvents
-                    } else {
-                        emptyList<Event>()
-                    }
-
-                    if (itemsToShow.isNotEmpty()) {
-                        items(itemsToShow) { event ->
-                            HistoryEventCard(
-                                navController = navController,
-                                title = event.eventName,
-                                dateTime = "${event.eventDate} - ${event.eventTime}",
-                                location = "${event.eventNeighborhood}, ${event.eventLocality}",
-                                eventId = event.id,
-                                sportType = event.sport,
-                                isPastEvent = selectedTabIndex == 1,
-                                showStatusText = false
-                            )
-                        }
-                    } else if (selectedTabIndex == 1) {
-                        item {
-                            Text(
-                                text = "Aún no tienes eventos pasados.",
-                                modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                                textAlign = TextAlign.Center,
-                                color = MediumGray,
-                                fontSize = 18.sp
-                            )
-                        }
+                    items(itemsToShow) { event ->
+                        HistoryEventCard(
+                            navController = navController,
+                            title = event.eventName,
+                            dateTime = "${event.eventDate} - ${event.eventTime}",
+                            location = "${event.eventNeighborhood}, ${event.eventLocality}",
+                            eventId = event.id,
+                            sportType = event.sport,
+                            isPastEvent = selectedTabIndex == 1,
+                            showStatusText = false
+                        )
                     }
                 }
             }
@@ -258,14 +273,14 @@ fun HistoryEventCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            if (showStatusText && !isPastEvent) {
+            if (isPastEvent) {
                 Text(
-                    text = stringResource(id = R.string.history_card_status_upcoming),
+                    text = "Finalizado",
                     color = MediumGray,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
-            } else if (!isPastEvent) {
+            } else {
                 Button(
                     onClick = { navController.navigate("event_details/$sportType/$eventId") },
                     shape = RoundedCornerShape(10.dp),
@@ -292,4 +307,3 @@ fun EventHistoryScreenPreview() {
         EventHistoryScreen(navController = rememberNavController())
     }
 }
-

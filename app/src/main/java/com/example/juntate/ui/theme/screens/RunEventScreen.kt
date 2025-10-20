@@ -19,8 +19,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +35,7 @@ import com.example.juntate.viewmodel.EventViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.juntate.ui.theme.screens.TimePickerDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +44,7 @@ fun RunEventScreen(navController: NavHostController) {
     val eventViewModel: EventViewModel = viewModel()
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+
     var eventName by remember { mutableStateOf("") }
     var eventDate by remember { mutableStateOf("") }
     var eventTime by remember { mutableStateOf("") }
@@ -51,17 +53,22 @@ fun RunEventScreen(navController: NavHostController) {
     var eventLevel by remember { mutableStateOf("") }
     var eventNotes by remember { mutableStateOf("") }
     var requiredParticipantsStr by remember { mutableStateOf("") }
+    var eventDateMillis by remember { mutableStateOf<Long?>(null) }
+
     var localityDropdownExpanded by remember { mutableStateOf(false) }
     var neighborhoodDropdownExpanded by remember { mutableStateOf(false) }
     var levelDropdownExpanded by remember { mutableStateOf(false) }
+
     val datePickerState = rememberDatePickerState()
     var showDatePickerDialog by remember { mutableStateOf(false) }
+
     val timePickerState = rememberTimePickerState()
     var showTimePickerDialog by remember { mutableStateOf(false) }
 
     val availableNeighborhoods = when (eventLocality) {
         "Antonio Nariño" -> stringArrayResource(id = R.array.antonio_nariño)
         "Barrios Unidos" -> stringArrayResource(id = R.array.barrios_unidos)
+        "Bogotá D.C" -> stringArrayResource(id = R.array.bogota)
         "Bosa" -> stringArrayResource(id = R.array.bosa)
         "Chapinero" -> stringArrayResource(id = R.array.chapinero)
         "Ciudad Bolívar" -> stringArrayResource(id = R.array.ciudad_bolivar)
@@ -97,6 +104,7 @@ fun RunEventScreen(navController: NavHostController) {
                     onClick = {
                         showDatePickerDialog = false
                         datePickerState.selectedDateMillis?.let { millis ->
+                            eventDateMillis = millis
                             val formatter = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "ES"))
                             formatter.timeZone = TimeZone.getTimeZone("UTC")
                             eventDate = formatter.format(Date(millis)).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale("es", "ES")) else it.toString() }
@@ -187,7 +195,7 @@ fun RunEventScreen(navController: NavHostController) {
                 OutlinedTextField(
                     value = eventName,
                     onValueChange = { eventName = it },
-                    placeholder = { Text(stringResource(id = R.string.run_event_field_name_placeholder)) },
+                    placeholder = { Text(stringResource(id = R.string.fut_event_field_name_placeholder)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = formTextFieldColors(),
@@ -312,13 +320,15 @@ fun RunEventScreen(navController: NavHostController) {
             Spacer(Modifier.height(32.dp))
             Spacer(modifier = Modifier.weight(1f))
 
-
             Button(
                 onClick = {
                     val requiredParticipantsInt = requiredParticipantsStr.toIntOrNull() ?: 0
+                    val todayMillis = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
+                    val selectedMillis = eventDateMillis ?: 0
+
                     if (eventName.isNotBlank() && eventDate.isNotBlank() && eventTime.isNotBlank() &&
                         eventLocality.isNotBlank() && eventNeighborhood.isNotBlank() && eventLevel.isNotBlank() &&
-                        requiredParticipantsInt > 0)
+                        requiredParticipantsInt > 0 && selectedMillis >= todayMillis)
                     {
                         eventViewModel.createEvent(
                             eventName = eventName.trim(), eventDate = eventDate, eventTime = eventTime,
@@ -326,13 +336,17 @@ fun RunEventScreen(navController: NavHostController) {
                             eventLevel = eventLevel, eventNotes = eventNotes.trim(),
                             requiredParticipants = requiredParticipantsInt,
                             sportType = "Running",
+                            eventDateMillis = eventDateMillis!!,
                             onSuccess = { navController.popBackStack() },
                             onError = { errorMsg -> coroutineScope.launch { snackbarHostState.showSnackbar(errorMsg) } }
                         )
                     } else {
                         coroutineScope.launch {
-                            val errorText = if (requiredParticipantsInt <= 0 && eventName.isNotBlank()) "Define un número válido de cupos."
-                            else "Completa todos los campos obligatorios."
+                            val errorText = when {
+                                selectedMillis < todayMillis && eventDate.isNotBlank() -> "No puedes crear un evento en una fecha pasada."
+                                requiredParticipantsInt <= 0 -> "Define un número válido de cupos."
+                                else -> "Completa todos los campos obligatorios."
+                            }
                             snackbarHostState.showSnackbar(errorText)
                         }
                     }
@@ -425,6 +439,7 @@ private fun formTextFieldColors(isPlaceholder: Boolean = false): TextFieldColors
     )
 }
 
+
 @Preview(showBackground = true, device = "spec:width=411dp,height=891dp")
 @Composable
 fun RunEventScreenPreview() {
@@ -432,4 +447,3 @@ fun RunEventScreenPreview() {
         RunEventScreen(navController = rememberNavController())
     }
 }
-

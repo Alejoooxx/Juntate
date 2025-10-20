@@ -19,8 +19,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,6 +52,7 @@ fun FutEventScreen(navController: NavHostController) {
     var eventLevel by remember { mutableStateOf("") }
     var eventNotes by remember { mutableStateOf("") }
     var requiredParticipantsStr by remember { mutableStateOf("") }
+    var eventDateMillis by remember { mutableStateOf<Long?>(null) }
 
     var localityDropdownExpanded by remember { mutableStateOf(false) }
     var neighborhoodDropdownExpanded by remember { mutableStateOf(false) }
@@ -101,6 +102,7 @@ fun FutEventScreen(navController: NavHostController) {
                     onClick = {
                         showDatePickerDialog = false
                         datePickerState.selectedDateMillis?.let { millis ->
+                            eventDateMillis = millis
                             val formatter = SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "ES"))
                             formatter.timeZone = TimeZone.getTimeZone("UTC")
                             eventDate = formatter.format(Date(millis)).replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale("es", "ES")) else it.toString() }
@@ -348,9 +350,12 @@ fun FutEventScreen(navController: NavHostController) {
             Button(
                 onClick = {
                     val requiredParticipantsInt = requiredParticipantsStr.toIntOrNull() ?: 0
+                    val todayMillis = Calendar.getInstance().apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
+                    val selectedMillis = eventDateMillis ?: 0
+
                     if (eventName.isNotBlank() && eventDate.isNotBlank() && eventTime.isNotBlank() &&
                         eventLocality.isNotBlank() && eventNeighborhood.isNotBlank() && eventLevel.isNotBlank() &&
-                        requiredParticipantsInt > 0)
+                        requiredParticipantsInt > 0 && selectedMillis >= todayMillis)
                     {
                         eventViewModel.createEvent(
                             eventName = eventName.trim(), eventDate = eventDate, eventTime = eventTime,
@@ -358,13 +363,17 @@ fun FutEventScreen(navController: NavHostController) {
                             eventLevel = eventLevel, eventNotes = eventNotes.trim(),
                             requiredParticipants = requiredParticipantsInt,
                             sportType = "Futbol",
+                            eventDateMillis = eventDateMillis!!,
                             onSuccess = { navController.popBackStack() },
                             onError = { errorMsg -> coroutineScope.launch { snackbarHostState.showSnackbar(errorMsg) } }
                         )
                     } else {
                         coroutineScope.launch {
-                            val errorText = if (requiredParticipantsInt <= 0 && eventName.isNotBlank()) "Define un número válido de cupos."
-                            else "Completa todos los campos obligatorios."
+                            val errorText = when {
+                                selectedMillis < todayMillis && eventDate.isNotBlank() -> "No puedes crear un evento en una fecha pasada."
+                                requiredParticipantsInt <= 0 -> "Define un número válido de cupos."
+                                else -> "Completa todos los campos obligatorios."
+                            }
                             snackbarHostState.showSnackbar(errorText)
                         }
                     }

@@ -17,6 +17,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 import java.lang.Exception
+import java.util.Calendar
+import java.text.Normalizer
+import java.util.Locale
 
 data class Event(
     val id: String = "",
@@ -31,7 +34,8 @@ data class Event(
     val createdByUid: String = "",
     val createdAt: Timestamp? = null,
     val participants: List<String> = emptyList(),
-    val requiredParticipants: Int = 0
+    val requiredParticipants: Int = 0,
+    val eventTimestamp: Timestamp? = null
 )
 
 class EventViewModel : ViewModel() {
@@ -82,7 +86,7 @@ class EventViewModel : ViewModel() {
                 _tempUserGymEvents
             ) { futbol, running, gym ->
                 (futbol + running + gym)
-                    .sortedByDescending { it.createdAt ?: Timestamp(Date(0)) }
+                    .sortedByDescending { it.eventTimestamp ?: it.createdAt ?: Timestamp(Date(0)) }
                     .distinctBy { it.id }
             }.collect { combinedList ->
                 _userEvents.value = combinedList
@@ -93,6 +97,25 @@ class EventViewModel : ViewModel() {
                 Log.d("EventViewModel", "UserEvents actualizado con ${combinedList.size} eventos.")
             }
         }
+    }
+
+    private fun normalizeLocation(value: String?): String {
+        if (value.isNullOrBlank()) return ""
+        val nfd = Normalizer.normalize(value, Normalizer.Form.NFD)
+        val noAccents = nfd.replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "")
+        val cleaned = noAccents.replace("[^a-zA-Z0-9 ]".toRegex(), " ")
+        return cleaned.lowercase(Locale.getDefault()).replace("\\s+".toRegex(), " ").trim()
+    }
+
+    private fun equalsNormalized(a: String?, b: String?): Boolean {
+        return normalizeLocation(a) == normalizeLocation(b)
+    }
+
+    private fun isBogotaDC(value: String?): Boolean {
+        val n = normalizeLocation(value)
+        if (n.isEmpty()) return false
+        if (n == "bogota dc" || n == "bogotadc" || n == "bogota d c" || n == "bogota") return true
+        return n.contains("bogota") && n.contains("dc")
     }
 
     fun joinEvent(eventId: String, sportType: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
@@ -150,8 +173,18 @@ class EventViewModel : ViewModel() {
             return
         }
 
-        val query = collectionToQuery.orderBy("createdAt", Query.Direction.DESCENDING)
-        Log.d("EventViewModel", "Iniciando listener FILTRADO para $sportType.")
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val startOfToday = Timestamp(calendar.time)
+
+        val query = collectionToQuery
+            .whereGreaterThanOrEqualTo("eventTimestamp", startOfToday)
+            .orderBy("eventTimestamp", Query.Direction.ASCENDING)
+
+        Log.d("EventViewModel", "Iniciando listener FILTRADO para $sportType desde $startOfToday.")
 
         listenerRef = query.addSnapshotListener { snapshots, error ->
             if (error != null) {
@@ -161,11 +194,14 @@ class EventViewModel : ViewModel() {
             }
             if (snapshots != null) {
                 val allEvents = snapshots.documents.mapNotNull { doc -> doc.toObject(Event::class.java)?.copy(id = doc.id) }
+                Log.d("EventViewModel", "Recibidos ${allEvents.size} eventos de $sportType de Firestore.")
+
                 val filteredEvents = allEvents.filter { event ->
                     val isCreatedByUser = event.createdByUid == currentUserUid
-                    val matchesProfileLocation = userLocation == null || userLocation.isBlank() || userLocation.equals("Bogotá D.C.", ignoreCase = true) || event.eventLocality.equals(userLocation, ignoreCase = true)
+                    val matchesProfileLocation = userLocation == null || userLocation.isBlank() || isBogotaDC(userLocation) || equalsNormalized(event.eventLocality, userLocation)
                     isCreatedByUser || matchesProfileLocation
                 }.distinctBy { it.id }
+
                 stateFlowToUpdate.value = filteredEvents
                 Log.d("EventViewModel", "[$sportType FILTRADO] Eventos filtrados: ${filteredEvents.size}.")
             } else {
@@ -201,7 +237,7 @@ class EventViewModel : ViewModel() {
 
         userFutbolEventsListener = futbolEventsCollection
             .whereArrayContains("participants", currentUserUid)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .orderBy("eventTimestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
                     Log.e("EventViewModel", "Error escuchando eventos de FÚTBOL del usuario", error)
@@ -216,7 +252,7 @@ class EventViewModel : ViewModel() {
 
         userRunningEventsListener = runningEventsCollection
             .whereArrayContains("participants", currentUserUid)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .orderBy("eventTimestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
                     Log.e("EventViewModel", "Error escuchando eventos de RUNNING del usuario", error)
@@ -231,7 +267,7 @@ class EventViewModel : ViewModel() {
 
         userGymEventsListener = gymEventsCollection
             .whereArrayContains("participants", currentUserUid)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .orderBy("eventTimestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
                     Log.e("EventViewModel", "Error escuchando eventos de GYM del usuario", error)
@@ -340,11 +376,11 @@ class EventViewModel : ViewModel() {
         _participantProfiles.value = emptyList()
     }
 
-
     fun createEvent(
         eventName: String, eventDate: String, eventTime: String, eventLocality: String,
         eventNeighborhood: String, eventLevel: String, eventNotes: String,
         requiredParticipants: Int, sportType: String,
+        eventDateMillis: Long,
         onSuccess: () -> Unit, onError: (String) -> Unit
     ) {
         viewModelScope.launch {
@@ -370,7 +406,8 @@ class EventViewModel : ViewModel() {
                 "createdByUid" to currentUser.uid,
                 "createdAt" to FieldValue.serverTimestamp(),
                 "participants" to listOf(currentUser.uid),
-                "requiredParticipants" to requiredParticipants
+                "requiredParticipants" to requiredParticipants,
+                "eventTimestamp" to Timestamp(Date(eventDateMillis))
             )
             try {
                 collection.add(newEvent).await()
