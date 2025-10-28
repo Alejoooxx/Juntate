@@ -147,4 +147,14 @@
     <string name="sample_participant_6">Camilo Saldaña</string>
     <string name="sample_participant_7">Carlos Aldana</string>
 
+
+    //ReportPlayerScreen
+    <string name="report_screen_title">Reportar Jugador</string> <string name="report_player_prompt">Cuéntanos por qué deseas\nreportar a este jugador</string>
+    <string name="report_reason_behavior">Comportamiento Inadecuado</string>
+    <string name="report_reason_no_show">No Asistió al evento</string>
+    <string name="report_reason_offensive_language">Lenguaje Ofensivo</string>
+    <string name="report_reason_other">Otro</string>
+    <string name="report_specify_reason_placeholder">Especifica el motivo</string>
+    <string name="report_send_button">Enviar reporte</string>
+
 </resources>

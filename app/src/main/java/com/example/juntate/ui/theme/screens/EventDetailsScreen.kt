@@ -159,7 +159,10 @@ fun EventDetailsContent(
             item { Text("Aún no hay participantes.", color = MediumGray, modifier = Modifier.padding(horizontal = 24.dp)) }
         } else {
             items(participantProfiles, key = { profile -> profile.uid }) { profile ->
-                ParticipantRow(profile = profile)
+                ParticipantRow(
+                    profile = profile,
+                    navController = navController
+                )
             }
         }
 
@@ -335,7 +338,7 @@ fun DetailInfoRowCard(
 
 
 @Composable
-fun ParticipantRow(profile: UserProfile) {
+fun ParticipantRow(profile: UserProfile, navController: NavHostController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -371,12 +374,37 @@ fun ParticipantRow(profile: UserProfile) {
                     color = Color.Black
                 )
             }
-            Icon(
-                imageVector = Icons.Default.MoreHoriz,
-                contentDescription = stringResource(R.string.icon_desc_options),
-                tint = MediumGray,
-                modifier = Modifier.clickable {}
-            )
+
+            var menuExpanded by remember { mutableStateOf(false) }
+
+            Box {
+                Icon(
+                    imageVector = Icons.Default.MoreHoriz,
+                    contentDescription = stringResource(R.string.icon_desc_options),
+                    tint = MediumGray,
+                    modifier = Modifier.clickable { menuExpanded = true }
+                )
+
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Reportar", color = Color.Red) },
+                        onClick = {
+                            navController.navigate("report_player/${profile.uid}")
+                            menuExpanded = false
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Flag,
+                                contentDescription = "Reportar",
+                                tint = Color.Red
+                            )
+                        }
+                    )
+                }
+            }
         }
     }
 }

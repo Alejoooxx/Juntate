@@ -155,5 +155,20 @@ fun AppNavigation(
         composable("gym_event_screen") {
             GymEventScreen(navController = navController)
         }
+
+        //Reportar Jugador
+        composable(
+            route = "report_player/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")
+            ReportPlayerScreen(
+                navController = navController
+            )
+        }
+
+        composable("confirm_report") {
+            ConfirmReportScreen(navController = navController)
+        }
     }
 }
