@@ -44,6 +44,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,6 +68,8 @@ fun EventDetailsScreen(
         selectedEvent?.let { event ->
             if (event.participants.isNotEmpty()) {
                 eventViewModel.fetchParticipantProfiles(event.participants)
+            } else {
+                eventViewModel.fetchParticipantProfiles(emptyList())
             }
         }
     }
@@ -145,7 +149,7 @@ fun EventDetailsContent(
 
         item {
             Text(
-                text = "Participantes (${event.participants.size} / ${event.requiredParticipants})",
+                text = "Participantes (${participantProfiles.size} / ${event.requiredParticipants})",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = PrimaryGreen,
@@ -161,7 +165,8 @@ fun EventDetailsContent(
             items(participantProfiles, key = { profile -> profile.uid }) { profile ->
                 ParticipantRow(
                     profile = profile,
-                    navController = navController
+                    navController = navController,
+                    isCurrentUser = profile.uid == currentUserUid
                 )
             }
         }
@@ -178,7 +183,7 @@ fun EventDetailsContent(
                 val isFull = event.requiredParticipants > 0 && event.participants.size >= event.requiredParticipants
 
                 if(isCreator || isParticipant) {
-                    Button(onClick = { /* Chat */ }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)) {
+                    Button(onClick = { }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)) {
                         Text("Chat grupal", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -217,6 +222,7 @@ fun EventDetailsContent(
                                     onSuccess = {
                                         Log.d("EventDetails", "Usuario salió del evento")
                                         Toast.makeText(context, "Has salido del evento", Toast.LENGTH_SHORT).show()
+                                        navController.popBackStack()
                                     },
                                     onError = { errorMsg ->
                                         coroutineScope.launch { Toast.makeText(context, "Error al salir: $errorMsg", Toast.LENGTH_LONG).show() }
@@ -338,7 +344,11 @@ fun DetailInfoRowCard(
 
 
 @Composable
-fun ParticipantRow(profile: UserProfile, navController: NavHostController) {
+fun ParticipantRow(
+    profile: UserProfile,
+    navController: NavHostController,
+    isCurrentUser: Boolean
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -368,41 +378,44 @@ fun ParticipantRow(profile: UserProfile, navController: NavHostController) {
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = profile.name,
+                    text = if (isCurrentUser) "${profile.name} (Tú)" else profile.name,
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = if (isCurrentUser) FontWeight.Bold else FontWeight.Medium,
                     color = Color.Black
                 )
             }
 
-            var menuExpanded by remember { mutableStateOf(false) }
-
-            Box {
-                Icon(
-                    imageVector = Icons.Default.MoreHoriz,
-                    contentDescription = stringResource(R.string.icon_desc_options),
-                    tint = MediumGray,
-                    modifier = Modifier.clickable { menuExpanded = true }
-                )
-
-                DropdownMenu(
-                    expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Reportar", color = Color.Red) },
-                        onClick = {
-                            navController.navigate("report_player/${profile.uid}")
-                            menuExpanded = false
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Flag,
-                                contentDescription = "Reportar",
-                                tint = Color.Red
-                            )
-                        }
+            if (!isCurrentUser) {
+                var menuExpanded by remember { mutableStateOf(false) }
+                Box {
+                    Icon(
+                        imageVector = Icons.Default.MoreHoriz,
+                        contentDescription = stringResource(R.string.icon_desc_options),
+                        tint = MediumGray,
+                        modifier = Modifier.clickable { menuExpanded = true }
                     )
+
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Reportar", color = Color.Red) },
+                            onClick = {
+                                val encodedName = URLEncoder.encode(profile.name, StandardCharsets.UTF_8.name())
+                                val encodedPhotoUrl = URLEncoder.encode(profile.profilePictureUrl, StandardCharsets.UTF_8.name())
+                                navController.navigate("report_player/${profile.uid}/$encodedName/$encodedPhotoUrl")
+                                menuExpanded = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Flag,
+                                    contentDescription = "Reportar",
+                                    tint = Color.Red
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

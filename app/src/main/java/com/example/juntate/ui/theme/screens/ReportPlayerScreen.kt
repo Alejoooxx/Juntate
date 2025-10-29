@@ -1,5 +1,6 @@
 package com.example.juntate.ui.theme.screens
 
+import android.widget.Toast
 import com.example.juntate.ui.theme.screens.BottomNavigationBar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,33 +29,44 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.juntate.R
 import com.example.juntate.ui.theme.*
+import com.example.juntate.viewmodel.EventViewModel
+import kotlinx.coroutines.launch
 
 private data class ReportOptionState(
     val textResId: Int,
+    val reportKey: String,
     var isChecked: Boolean = false
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReportPlayerScreen(navController: NavHostController) {
+fun ReportPlayerScreen(
+    navController: NavHostController,
+    reportedUserId: String,
+    reportedUserName: String,
+    reportedUserPhotoUrl: String
+) {
 
-    // Agregar la forma de obtener el perfil del jugador (nombre, imagen) usando el ID
+    val eventViewModel: EventViewModel = viewModel()
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val reportOptions = remember {
         mutableStateListOf(
-            ReportOptionState(R.string.report_reason_behavior),
-            ReportOptionState(R.string.report_reason_no_show),
-            ReportOptionState(R.string.report_reason_offensive_language),
-            ReportOptionState(R.string.report_reason_other)
+            ReportOptionState(R.string.report_reason_behavior, "behavior"),
+            ReportOptionState(R.string.report_reason_no_show, "no_show"),
+            ReportOptionState(R.string.report_reason_offensive_language, "offensive_language"),
+            ReportOptionState(R.string.report_reason_other, "other")
         )
     }
     var otherReasonText by remember { mutableStateOf("") }
-    val isOtherChecked = reportOptions.last().isChecked
+    val isOtherChecked = reportOptions.find { it.reportKey == "other" }?.isChecked ?: false
 
     Scaffold(
         topBar = {
@@ -86,7 +99,7 @@ fun ReportPlayerScreen(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AsyncImage(
-                model = R.drawable.ic_profile_placeholder,
+                model = reportedUserPhotoUrl.ifBlank { R.drawable.ic_profile_placeholder },
                 contentDescription = "Foto del jugador",
                 modifier = Modifier
                     .size(150.dp)
@@ -99,7 +112,7 @@ fun ReportPlayerScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Javier López",
+                text = reportedUserName,
                 color = PrimaryGreen,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
@@ -121,13 +134,13 @@ fun ReportPlayerScreen(navController: NavHostController) {
                         text = stringResource(id = option.textResId),
                         checked = option.isChecked,
                         onCheckedChange = { isChecked ->
-                            if (option.textResId == R.string.report_reason_other) {
+                            if (option.reportKey == "other") {
                                 reportOptions.indices.forEach { i ->
                                     reportOptions[i] = reportOptions[i].copy(isChecked = i == index)
                                 }
                             } else if (isChecked) {
                                 reportOptions[index] = option.copy(isChecked = true)
-                                val otherIndex = reportOptions.indexOfFirst { it.textResId == R.string.report_reason_other }
+                                val otherIndex = reportOptions.indexOfFirst { it.reportKey == "other" }
                                 if (otherIndex != -1) {
                                     reportOptions[otherIndex] = reportOptions[otherIndex].copy(isChecked = false)
                                     otherReasonText = ""
@@ -171,13 +184,31 @@ fun ReportPlayerScreen(navController: NavHostController) {
 
             Button(
                 onClick = {
-                    // Agregar logica de registro en el Firebase
-                    navController.navigate("confirm_report") {
-                        popUpTo(navController.currentBackStackEntry!!.destination.route!!) {
-                            inclusive = true
+                    val selectedReasons = reportOptions
+                        .filter { it.isChecked && it.reportKey != "other" }
+                        .map { context.getString(it.textResId) }
+
+                    val finalOtherReason = if (isOtherChecked) otherReasonText else ""
+
+                    eventViewModel.submitReport(
+                        reportedUid = reportedUserId,
+                        reportedName = reportedUserName,
+                        reasons = selectedReasons,
+                        otherReasonText = finalOtherReason,
+                        onSuccess = {
+                            navController.navigate("confirm_report") {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = false
+                                }
+                                launchSingleTop = true
+                            }
+                        },
+                        onError = { errorMsg ->
+                            coroutineScope.launch {
+                                Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                            }
                         }
-                        launchSingleTop = true
-                    }
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -235,6 +266,11 @@ private fun ReportCheckboxRow(
 @Composable
 fun ReportPlayerScreenPreview() {
     JuntateTheme {
-        ReportPlayerScreen(navController = rememberNavController())
+        ReportPlayerScreen(
+            navController = rememberNavController(),
+            reportedUserId = "sampleId",
+            reportedUserName = "Javier López",
+            reportedUserPhotoUrl = ""
+        )
     }
 }

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.juntate.data.FirebaseModule
+import com.example.juntate.ui.theme.screens.ProfileScreen
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
@@ -20,6 +21,7 @@ import java.lang.Exception
 import java.util.Calendar
 import java.text.Normalizer
 import java.util.Locale
+import java.util.TimeZone
 
 data class Event(
     val id: String = "",
@@ -46,6 +48,7 @@ class EventViewModel : ViewModel() {
     private val runningEventsCollection = db.collection("running_events")
     private val gymEventsCollection = db.collection("gym_events")
     private val usersCollection = db.collection("users")
+    private val reportsCollection = db.collection("reports")
 
     private val _futbolEvents = MutableStateFlow<List<Event>>(emptyList())
     val futbolEvents: StateFlow<List<Event>> = _futbolEvents
@@ -173,7 +176,7 @@ class EventViewModel : ViewModel() {
             return
         }
 
-        val calendar = Calendar.getInstance()
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
@@ -196,11 +199,17 @@ class EventViewModel : ViewModel() {
                 val allEvents = snapshots.documents.mapNotNull { doc -> doc.toObject(Event::class.java)?.copy(id = doc.id) }
                 Log.d("EventViewModel", "Recibidos ${allEvents.size} eventos de $sportType de Firestore.")
 
-                val filteredEvents = allEvents.filter { event ->
-                    val isCreatedByUser = event.createdByUid == currentUserUid
-                    val matchesProfileLocation = userLocation == null || userLocation.isBlank() || isBogotaDC(userLocation) || equalsNormalized(event.eventLocality, userLocation)
-                    isCreatedByUser || matchesProfileLocation
-                }.distinctBy { it.id }
+                val filteredEvents = if (userLocation != null && isBogotaDC(userLocation)) {
+                    Log.d("EventViewModel", "[$sportType] Localidad es Bogotá D.C., mostrando todos los ${allEvents.size} eventos.")
+                    allEvents
+                } else {
+                    Log.d("EventViewModel", "[$sportType] Filtrando por localidad: ${userLocation ?: "N/A"} o creados por usuario.")
+                    allEvents.filter { event ->
+                        val isCreatedByUser = event.createdByUid == currentUserUid
+                        val matchesProfileLocation = userLocation != null && equalsNormalized(event.eventLocality, userLocation)
+                        isCreatedByUser || matchesProfileLocation
+                    }.distinctBy { it.id }
+                }
 
                 stateFlowToUpdate.value = filteredEvents
                 Log.d("EventViewModel", "[$sportType FILTRADO] Eventos filtrados: ${filteredEvents.size}.")
@@ -376,6 +385,7 @@ class EventViewModel : ViewModel() {
         _participantProfiles.value = emptyList()
     }
 
+
     fun createEvent(
         eventName: String, eventDate: String, eventTime: String, eventLocality: String,
         eventNeighborhood: String, eventLevel: String, eventNotes: String,
@@ -414,6 +424,41 @@ class EventViewModel : ViewModel() {
                 onSuccess()
             } catch (e: Exception) {
                 Log.e("EventViewModel", "Error creando evento de $sportType", e)
+                onError(e.message ?: "Error desconocido.")
+            }
+        }
+    }
+
+    fun submitReport(
+        reportedUid: String,
+        reportedName: String,
+        reasons: List<String>,
+        otherReasonText: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            val currentUser = auth.currentUser
+            if (currentUser == null) {
+                onError("Usuario no autenticado.")
+                return@launch
+            }
+
+            val reportData = hashMapOf(
+                "reporterUid" to currentUser.uid,
+                "reportedUid" to reportedUid,
+                "reportedName" to reportedName,
+                "reasons" to reasons,
+                "otherReasonText" to otherReasonText,
+                "createdAt" to FieldValue.serverTimestamp()
+            )
+
+            try {
+                reportsCollection.add(reportData).await()
+                Log.d("EventViewModel", "Reporte enviado para $reportedUid por ${currentUser.uid}")
+                onSuccess()
+            } catch (e: Exception) {
+                Log.e("EventViewModel", "Error al enviar reporte", e)
                 onError(e.message ?: "Error desconocido.")
             }
         }

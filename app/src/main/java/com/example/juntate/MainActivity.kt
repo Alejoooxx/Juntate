@@ -23,6 +23,9 @@ import androidx.navigation.navArgument
 import com.example.juntate.ui.theme.JuntateTheme
 import com.example.juntate.ui.theme.screens.*
 import com.google.firebase.FirebaseApp
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -156,15 +159,32 @@ fun AppNavigation(
             GymEventScreen(navController = navController)
         }
 
-        //Reportar Jugador
         composable(
-            route = "report_player/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+            route = "report_player/{userId}/{userName}/{userPhotoUrl}",
+            arguments = listOf(
+                navArgument("userId") { type = NavType.StringType },
+                navArgument("userName") { type = NavType.StringType },
+                navArgument("userPhotoUrl") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")
-            ReportPlayerScreen(
-                navController = navController
-            )
+            val userName = backStackEntry.arguments?.getString("userName")?.let {
+                URLDecoder.decode(it, StandardCharsets.UTF_8.name())
+            }
+            val userPhotoUrl = backStackEntry.arguments?.getString("userPhotoUrl")?.let {
+                URLDecoder.decode(it, StandardCharsets.UTF_8.name())
+            }
+
+            if (userId != null && userName != null && userPhotoUrl != null) {
+                ReportPlayerScreen(
+                    navController = navController,
+                    reportedUserId = userId,
+                    reportedUserName = userName,
+                    reportedUserPhotoUrl = userPhotoUrl
+                )
+            } else {
+                Text("Error: Faltan datos para reportar al usuario.")
+            }
         }
 
         composable("confirm_report") {
