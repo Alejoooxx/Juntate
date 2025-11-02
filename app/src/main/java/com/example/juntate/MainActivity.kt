@@ -153,16 +153,18 @@ fun AppNavigation(
                 navArgument("eventTitle") { type = NavType.StringType }
             )
         ) { backStackEntry ->
+            val sportType = backStackEntry.arguments?.getString("sportType")
             val eventId = backStackEntry.arguments?.getString("eventId")
             val eventTitle = backStackEntry.arguments?.getString("eventTitle")?.let {
                 URLDecoder.decode(it, StandardCharsets.UTF_8.name())
             }
 
-            if (eventId != null && eventTitle != null) {
+            if (sportType != null && eventId != null && eventTitle != null) {
                 ChatScreen(
                     navController = navController,
                     eventId = eventId,
-                    eventTitle = eventTitle
+                    eventTitle = eventTitle,
+                    sportType = sportType
                 )
             } else {
                 Text("Error: Faltan datos para cargar el chat.")
