@@ -149,7 +149,8 @@
 
 
     //ReportPlayerScreen
-    <string name="report_screen_title">Reportar Jugador</string> <string name="report_player_prompt">Cuéntanos por qué deseas\nreportar a este jugador</string>
+    <string name="report_screen_title">Reportar Jugador</string>
+    <string name="report_player_prompt">Cuéntanos por qué deseas\nreportar a este jugador</string>
     <string name="report_reason_behavior">Comportamiento Inadecuado</string>
     <string name="report_reason_no_show">No Asistió al evento</string>
     <string name="report_reason_offensive_language">Lenguaje Ofensivo</string>
@@ -157,4 +158,18 @@
     <string name="report_specify_reason_placeholder">Especifica el motivo</string>
     <string name="report_send_button">Enviar reporte</string>
 
+
+    //ConfirmReport
+
+
+
+    //ChatScreen
+    <string name="chat_screen_title_placeholder">Chat Grupal</string>
+    <string name="chat_back_button_desc">Volver</string>
+    <string name="chat_attach_file_desc">Adjuntar archivo</string>
+    <string name="chat_message_placeholder">Escribir un mensaje</string>
+    <string name="chat_send_button_desc">Enviar mensaje</string>
+
+
+    //
 </resources>

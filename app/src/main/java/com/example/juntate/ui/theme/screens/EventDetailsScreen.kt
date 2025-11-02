@@ -183,7 +183,15 @@ fun EventDetailsContent(
                 val isFull = event.requiredParticipants > 0 && event.participants.size >= event.requiredParticipants
 
                 if(isCreator || isParticipant) {
-                    Button(onClick = { }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)) {
+                    Button(
+                        onClick = {
+                            val encodedTitle = URLEncoder.encode(event.eventName, StandardCharsets.UTF_8.name())
+                            navController.navigate("chat_screen/${event.sport}/${event.id}/$encodedTitle")
+                        },
+                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
+                    ) {
                         Text("Chat grupal", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                 }

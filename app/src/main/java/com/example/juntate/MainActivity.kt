@@ -145,6 +145,30 @@ fun AppNavigation(
             }
         }
 
+        composable(
+            route = "chat_screen/{sportType}/{eventId}/{eventTitle}",
+            arguments = listOf(
+                navArgument("sportType") { type = NavType.StringType },
+                navArgument("eventId") { type = NavType.StringType },
+                navArgument("eventTitle") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId")
+            val eventTitle = backStackEntry.arguments?.getString("eventTitle")?.let {
+                URLDecoder.decode(it, StandardCharsets.UTF_8.name())
+            }
+
+            if (eventId != null && eventTitle != null) {
+                ChatScreen(
+                    navController = navController,
+                    eventId = eventId,
+                    eventTitle = eventTitle
+                )
+            } else {
+                Text("Error: Faltan datos para cargar el chat.")
+            }
+        }
+
         composable("running_screen") {
             RunningScreen(navController = navController)
         }
