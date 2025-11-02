@@ -31,7 +31,19 @@ fun ConfirmReportScreen(navController: NavHostController) {
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = {
+                        navController.navigate("history") {
+                            // Limpia la pila de navegación hasta "home"
+                            // (la pantalla principal después de iniciar sesión)
+                            popUpTo("home") {
+                                saveState = true
+                            }
+                            // Asegura que solo haya una instancia de "history"
+                            launchSingleTop = true
+                            // Restaura el estado si ya existía
+                            restoreState = true
+                        }
+                    }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = stringResource(id = R.string.back_button_description),
