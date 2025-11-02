@@ -204,8 +204,6 @@ fun SportCard(
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController, currentScreen: String) {
-    val iconSize = 32.dp
-
     NavigationBar(
         containerColor = PrimaryGreen,
         contentColor = Color.White,
@@ -228,9 +226,17 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
                     modifier = Modifier.size(32.dp)
                 )
             },
+            label = {
+                Text(
+                    text = "Mis Eventos",
+                    fontSize = 12.sp
+                )
+            },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color.White,
-                unselectedIconColor = Color.White,
+                selectedTextColor = Color.White,
+                unselectedIconColor = Color.White.copy(alpha = 0.7f),
+                unselectedTextColor = Color.White.copy(alpha = 0.7f),
                 indicatorColor = PrimaryLightGreen
             )
         )
@@ -251,9 +257,17 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
                     modifier = Modifier.size(38.dp)
                 )
             },
+            label = {
+                Text(
+                    text = "Inicio",
+                    fontSize = 12.sp
+                )
+            },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color.White,
-                unselectedIconColor = Color.White,
+                selectedTextColor = Color.White,
+                unselectedIconColor = Color.White.copy(alpha = 0.7f),
+                unselectedTextColor = Color.White.copy(alpha = 0.7f),
                 indicatorColor = PrimaryLightGreen
             )
         )
@@ -274,9 +288,17 @@ fun BottomNavigationBar(navController: NavHostController, currentScreen: String)
                     modifier = Modifier.size(38.dp)
                 )
             },
+            label = {
+                Text(
+                    text = "Mi Perfil",
+                    fontSize = 12.sp
+                )
+            },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = Color.White,
-                unselectedIconColor = Color.White,
+                selectedTextColor = Color.White,
+                unselectedIconColor = Color.White.copy(alpha = 0.7f),
+                unselectedTextColor = Color.White.copy(alpha = 0.7f),
                 indicatorColor = PrimaryLightGreen
             )
         )
