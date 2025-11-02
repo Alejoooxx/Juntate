@@ -102,7 +102,7 @@ fun EventHistoryScreen(navController: NavHostController) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No te has unido a ningún evento aún.",
+                        text = stringResource(R.string.history_empty_no_events_yet),
                         modifier = Modifier.padding(16.dp),
                         textAlign = TextAlign.Center, color = MediumGray, fontSize = 18.sp
                     )
@@ -114,7 +114,11 @@ fun EventHistoryScreen(navController: NavHostController) {
                     modifier = Modifier.padding(innerPadding).fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    val message = if (selectedTabIndex == 0) "No tienes eventos próximos." else "Aún no tienes eventos pasados."
+                    val message = if (selectedTabIndex == 0) {
+                        stringResource(R.string.history_empty_current_events)
+                    } else {
+                        stringResource(R.string.history_empty_past_events)
+                    }
                     Text(
                         text = message,
                         modifier = Modifier.padding(16.dp).fillMaxWidth(),
@@ -151,7 +155,7 @@ fun EventHistoryScreen(navController: NavHostController) {
                     modifier = Modifier.padding(innerPadding).fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Inicia sesión para ver tu historial", color = Color.Gray, fontSize = 18.sp)
+                    Text(stringResource(R.string.history_login_prompt), color = Color.Gray, fontSize = 18.sp)
                 }
             }
             else -> {
@@ -275,7 +279,7 @@ fun HistoryEventCard(
 
             if (isPastEvent) {
                 Text(
-                    text = "Finalizado",
+                    text = stringResource(R.string.history_card_status_finished),
                     color = MediumGray,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium

@@ -83,6 +83,11 @@
     <string name="sample_event_title_2">Parque 7 canchas</string>
     <string name="sample_event_datetime_2">Viernes, 13 de septiembre\n8:00 AM</string>
     <string name="sample_event_location_2">Engativa - Cortijo</string>
+    <string name="futbol_empty_events">No hay eventos de fútbol disponibles\npara tu localidad o creados por ti.\n¡Anímate a crear uno!</string>
+    <string name="futbol_join_success_toast">¡Te has unido al evento!</string>
+    <string name="futbol_login_prompt">Inicia sesión para ver los eventos</string>
+    <string name="futbol_card_creator_button">Creado por ti</string>
+    <string name="futbol_card_joined_button">Ya unido</string>
 
 
     //FutEventScreen
@@ -109,6 +114,13 @@
     <string name="icon_desc_time">Icono de reloj</string>
     <string name="run_event_field_name_placeholder">Ej: Trote Grupal Parque Simón Bolívar</string> <string name="run_event_field_datetime_label">Fecha y hora</string>
     <string name="gym_event_field_name_placeholder">Ej: Entrenamiento Pierna Grupal Smartfit</string> <string name="gym_event_field_datetime_label">Fecha y hora</string>
+    <string name="fut_event_field_spots_label">Cupos Disponibles</string>
+    <string name="fut_event_field_spots_placeholder">Número de cupos</string>
+    <string name="fut_event_icon_desc_spots">Cupos</string>
+    <string name="fut_event_error_past_date">No puedes crear un evento en una fecha pasada.</string>
+    <string name="fut_event_error_invalid_spots">Define un número válido de cupos.</string>
+    <string name="fut_event_error_empty_fields">Completa todos los campos obligatorios.</string>
+    <string name="fut_event_time_dialog_title">Seleccionar Hora</string>
 
 
     //EventHistoryScreen
@@ -159,16 +171,47 @@
     <string name="report_send_button">Enviar reporte</string>
 
 
-    //ConfirmReport
-
-
-
     //ChatScreen
     <string name="chat_screen_title_placeholder">Chat Grupal</string>
     <string name="chat_back_button_desc">Volver</string>
     <string name="chat_attach_file_desc">Adjuntar archivo</string>
     <string name="chat_message_placeholder">Escribir un mensaje</string>
     <string name="chat_send_button_desc">Enviar mensaje</string>
+
+
+    //ConfirmReportScreen
+    <string name="confirm_report_icon_desc">Reporte Confirmado</string>
+    <string name="confirm_report_message">Su reporte ha sido realizado con éxito. Lamentamos la situación presentada con esta persona y agradecemos que nos lo haya informado.</string>
+
+
+    //EventDetailsScreen
+    <string name="event_details_participants_template">Participantes (%1$d / %2$d)</string>
+    <string name="event_details_no_participants">Aún no hay participantes.</string>
+    <string name="event_details_delete_button">Eliminar Evento</string>
+    <string name="event_details_leave_button">Salirse del Evento</string>
+    <string name="event_details_full_button">Evento Lleno</string>
+    <string name="event_details_join_button">Unirse al Evento</string>
+    <string name="event_details_toast_deleted">Evento eliminado</string>
+    <string name="event_details_toast_error_template">Error: %1$s</string>
+    <string name="event_details_toast_left">Has salido del evento</string>
+    <string name="event_details_toast_joined">Te has unido al evento</string>
+    <string name="event_details_label_date">Fecha</string>
+    <string name="event_details_label_time">Hora</string>
+    <string name="event_details_label_locality">Localidad</string>
+    <string name="event_details_label_neighborhood">Barrio</string>
+    <string name="event_details_label_level">Nivel</string>
+    <string name="event_details_label_notes">Notas Adicionales</string>
+    <string name="event_details_participant_you">%1$s (Tú)</string>
+    <string name="event_details_report_button">Reportar</string>
+
+
+    //EventHistoryScreen
+    <string name="history_loading">Cargando eventos…</string>
+    <string name="history_empty_no_events_yet">No te has unido a ningún evento aún.</string>
+    <string name="history_empty_current_events">No tienes eventos próximos.</string>
+    <string name="history_empty_past_events">Aún no tienes eventos pasados.</string>
+    <string name="history_card_status_finished">Finalizado</string>
+    <string name="history_login_prompt">Inicia sesión para ver tu historial</string>
 
 
     //

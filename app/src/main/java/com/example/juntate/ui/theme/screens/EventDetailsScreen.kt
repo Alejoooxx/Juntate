@@ -84,7 +84,7 @@ fun EventDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detalles del Evento", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.event_details_screen_title), color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back_button_description), tint = Color.White)
@@ -139,6 +139,11 @@ fun EventDetailsContent(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    val toastDeleted = stringResource(R.string.event_details_toast_deleted)
+    val toastErrorTemplate = stringResource(R.string.event_details_toast_error_template)
+    val toastLeft = stringResource(R.string.event_details_toast_left)
+    val toastJoined = stringResource(R.string.event_details_toast_joined)
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
@@ -149,7 +154,7 @@ fun EventDetailsContent(
 
         item {
             Text(
-                text = "Participantes (${participantProfiles.size} / ${event.requiredParticipants})",
+                text = stringResource(R.string.event_details_participants_template, participantProfiles.size, event.requiredParticipants),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = PrimaryGreen,
@@ -160,7 +165,7 @@ fun EventDetailsContent(
         if (participantProfiles.isEmpty() && event.participants.isNotEmpty()) {
             item { CircularProgressIndicator(modifier = Modifier.padding(horizontal = 24.dp)) }
         } else if (participantProfiles.isEmpty()) {
-            item { Text("Aún no hay participantes.", color = MediumGray, modifier = Modifier.padding(horizontal = 24.dp)) }
+            item { Text(stringResource(R.string.event_details_no_participants), color = MediumGray, modifier = Modifier.padding(horizontal = 24.dp)) }
         } else {
             items(participantProfiles, key = { profile -> profile.uid }) { profile ->
                 ParticipantRow(
@@ -192,7 +197,7 @@ fun EventDetailsContent(
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
                     ) {
-                        Text("Chat grupal", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.event_details_chat_button), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -203,12 +208,12 @@ fun EventDetailsContent(
                                 eventViewModel.deleteEvent(event.id, event.sport,
                                     onSuccess = {
                                         Log.d("EventDetails", "Evento eliminado")
-                                        Toast.makeText(context, "Evento eliminado", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, toastDeleted, Toast.LENGTH_SHORT).show()
                                         navController.popBackStack()
                                     },
                                     onError = { errorMsg ->
                                         coroutineScope.launch {
-                                            Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(context, toastErrorTemplate.format(errorMsg), Toast.LENGTH_LONG).show()
                                         }
                                     }
                                 )
@@ -220,7 +225,7 @@ fun EventDetailsContent(
                             modifier = Modifier.fillMaxWidth().height(50.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("Eliminar Evento", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.event_details_delete_button), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                     isParticipant -> {
@@ -229,11 +234,11 @@ fun EventDetailsContent(
                                 eventViewModel.leaveEvent(event.id, event.sport,
                                     onSuccess = {
                                         Log.d("EventDetails", "Usuario salió del evento")
-                                        Toast.makeText(context, "Has salido del evento", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, toastLeft, Toast.LENGTH_SHORT).show()
                                         navController.popBackStack()
                                     },
                                     onError = { errorMsg ->
-                                        coroutineScope.launch { Toast.makeText(context, "Error al salir: $errorMsg", Toast.LENGTH_LONG).show() }
+                                        coroutineScope.launch { Toast.makeText(context, toastErrorTemplate.format(errorMsg), Toast.LENGTH_LONG).show() }
                                     }
                                 )
                             },
@@ -244,12 +249,12 @@ fun EventDetailsContent(
                             modifier = Modifier.fillMaxWidth().height(50.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("Salirse del Evento", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.event_details_leave_button), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                     isFull -> {
                         Button(onClick = {}, enabled = false, colors = ButtonDefaults.buttonColors(disabledContainerColor = MediumGray), modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(12.dp)) {
-                            Text("Evento Lleno", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.event_details_full_button), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                     else -> {
@@ -257,16 +262,16 @@ fun EventDetailsContent(
                             eventViewModel.joinEvent(event.id, event.sport,
                                 onSuccess = {
                                     Log.d("EventDetails", "Usuario se unió al evento")
-                                    Toast.makeText(context, "Te has unido al evento", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, toastJoined, Toast.LENGTH_SHORT).show()
                                 },
                                 onError = { errorMsg ->
                                     coroutineScope.launch {
-                                        Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context, toastErrorTemplate.format(errorMsg), Toast.LENGTH_LONG).show()
                                     }
                                 }
                             )
                         }, colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen), modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(12.dp)) {
-                            Text("Unirse al Evento", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.event_details_join_button), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -299,16 +304,16 @@ fun EventInfoCardDetails(event: Event) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-            DetailInfoRowCard(icon = Icons.Default.CalendarToday, label = "Fecha", value = event.eventDate)
-            DetailInfoRowCard(icon = Icons.Default.Schedule, label = "Hora", value = event.eventTime)
+            DetailInfoRowCard(icon = Icons.Default.CalendarToday, label = stringResource(R.string.event_details_label_date), value = event.eventDate)
+            DetailInfoRowCard(icon = Icons.Default.Schedule, label = stringResource(R.string.event_details_label_time), value = event.eventTime)
             Spacer(modifier = Modifier.height(12.dp))
-            DetailInfoRowCard(icon = Icons.Default.LocationOn, label = "Localidad", value = event.eventLocality)
-            DetailInfoRowCard(icon = Icons.Default.HomeWork, label = "Barrio", value = event.eventNeighborhood)
+            DetailInfoRowCard(icon = Icons.Default.LocationOn, label = stringResource(R.string.event_details_label_locality), value = event.eventLocality)
+            DetailInfoRowCard(icon = Icons.Default.HomeWork, label = stringResource(R.string.event_details_label_neighborhood), value = event.eventNeighborhood)
             Spacer(modifier = Modifier.height(12.dp))
-            DetailInfoRowCard(icon = Icons.Default.Diamond, label = "Nivel", value = event.eventLevel)
+            DetailInfoRowCard(icon = Icons.Default.Diamond, label = stringResource(R.string.event_details_label_level), value = event.eventLevel)
             if (event.eventNotes.isNotBlank()) {
                 Spacer(modifier = Modifier.height(12.dp))
-                DetailInfoRowCard(icon = Icons.Default.Notes, label = "Notas Adicionales", value = event.eventNotes)
+                DetailInfoRowCard(icon = Icons.Default.Notes, label = stringResource(R.string.event_details_label_notes), value = event.eventNotes)
             }
         }
     }
@@ -386,7 +391,7 @@ fun ParticipantRow(
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = if (isCurrentUser) "${profile.name} (Tú)" else profile.name,
+                    text = if (isCurrentUser) stringResource(R.string.event_details_participant_you, profile.name) else profile.name,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = if (isCurrentUser) FontWeight.Bold else FontWeight.Medium,
                     color = Color.Black
@@ -408,7 +413,7 @@ fun ParticipantRow(
                         onDismissRequest = { menuExpanded = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Reportar", color = Color.Red) },
+                            text = { Text(stringResource(R.string.event_details_report_button), color = Color.Red) },
                             onClick = {
                                 val encodedName = URLEncoder.encode(profile.name, StandardCharsets.UTF_8.name())
                                 val encodedPhotoUrl = URLEncoder.encode(profile.profilePictureUrl, StandardCharsets.UTF_8.name())
@@ -418,7 +423,7 @@ fun ParticipantRow(
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.Flag,
-                                    contentDescription = "Reportar",
+                                    contentDescription = stringResource(R.string.event_details_report_button),
                                     tint = Color.Red
                                 )
                             }

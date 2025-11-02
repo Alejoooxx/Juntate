@@ -114,6 +114,9 @@ fun FutbolScreen(navController: NavHostController) {
             )
     ) { innerPadding ->
 
+        val toastJoined = stringResource(R.string.futbol_join_success_toast)
+        val toastErrorTemplate = stringResource(R.string.event_details_toast_error_template)
+
         when {
             currentUserUid != null && userProfile == null && !profileLoadAttempted -> {
                 Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
@@ -126,7 +129,7 @@ fun FutbolScreen(navController: NavHostController) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No hay eventos de fútbol disponibles\npara tu localidad o creados por ti.\n¡Anímate a crear uno!",
+                        text = stringResource(R.string.futbol_empty_events),
                         fontSize = 18.sp,
                         color = Color.Gray,
                         textAlign = TextAlign.Center
@@ -159,12 +162,12 @@ fun FutbolScreen(navController: NavHostController) {
                                         sportType = "Futbol",
                                         onSuccess = {
                                             coroutineScope.launch {
-                                                Toast.makeText(context, "¡Te has unido al evento!", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, toastJoined, Toast.LENGTH_SHORT).show()
                                             }
                                         },
                                         onError = { errorMsg ->
                                             coroutineScope.launch {
-                                                Toast.makeText(context, "Error: $errorMsg", Toast.LENGTH_LONG).show()
+                                                Toast.makeText(context, toastErrorTemplate.format(errorMsg), Toast.LENGTH_LONG).show()
                                             }
                                         }
                                     )
@@ -179,7 +182,7 @@ fun FutbolScreen(navController: NavHostController) {
                     modifier = Modifier.padding(innerPadding).fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Inicia sesión para ver los eventos", color = Color.Gray, fontSize = 18.sp)
+                    Text(stringResource(R.string.futbol_login_prompt), color = Color.Gray, fontSize = 18.sp)
                 }
             }
             else -> {
@@ -269,8 +272,8 @@ fun EventCardFutbol(
                     contentPadding = PaddingValues(vertical = 6.dp, horizontal = 18.dp)
                 ) {
                     val buttonText = when {
-                        isCreator -> "Creado por ti"
-                        isParticipant -> "Ya unido"
+                        isCreator -> stringResource(R.string.futbol_card_creator_button)
+                        isParticipant -> stringResource(R.string.futbol_card_joined_button)
                         isFull -> stringResource(id = R.string.event_card_complete_button)
                         else -> stringResource(id = R.string.event_card_join_button)
                     }

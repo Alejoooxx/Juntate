@@ -61,7 +61,7 @@ fun ConfirmReportScreen(navController: NavHostController) {
             ) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Reporte Confirmado",
+                    contentDescription = stringResource(R.string.confirm_report_icon_desc),
                     tint = Color.White,
                     modifier = Modifier.size(80.dp)
                 )
@@ -70,7 +70,7 @@ fun ConfirmReportScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(48.dp))
 
             Text(
-                text = "Su reporte ha sido realizado con éxito. Lamentamos la situación presentada con esta persona y agradecemos que nos lo haya informado.",
+                text = stringResource(R.string.confirm_report_message),
                 style = MaterialTheme.typography.titleLarge,
                 color = TextGray,
                 fontWeight = FontWeight.Normal,
