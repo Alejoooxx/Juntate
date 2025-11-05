@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,6 +34,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
@@ -47,7 +53,6 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -299,25 +304,37 @@ fun ChatMessageBubble(message: Message, isSentByCurrentUser: Boolean) {
             shape = bubbleShape,
             shadowElevation = 2.dp
         ) {
-            if (message.messageType == "IMAGE" || message.messageType == "VIDEO") {
-                AsyncImage(
-                    model = message.mediaUrl,
-                    contentDescription = "Imagen adjunta",
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .sizeIn(maxHeight = 250.dp, maxWidth = 250.dp)
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop,
-                    placeholder = painterResource(id = R.drawable.ic_profile_placeholder),
-                    error = painterResource(id = R.drawable.ic_profile_placeholder)
-                )
-            } else {
-                Text(
-                    text = message.messageText ?: "",
-                    color = textColor,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
-                )
+            when (message.messageType) {
+                "IMAGE" -> {
+                    AsyncImage(
+                        model = message.mediaUrl,
+                        contentDescription = "Imagen adjunta",
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .sizeIn(maxHeight = 250.dp, maxWidth = 250.dp)
+                            .clip(RoundedCornerShape(12.dp)),
+                        contentScale = ContentScale.Crop,
+                        placeholder = painterResource(id = R.drawable.ic_profile_placeholder),
+                        error = painterResource(id = R.drawable.ic_profile_placeholder)
+                    )
+                }
+                "VIDEO" -> {
+                    VideoPlayer(
+                        uri = Uri.parse(message.mediaUrl ?: ""),
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .sizeIn(maxHeight = 250.dp, maxWidth = 250.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                    )
+                }
+                else -> {
+                    Text(
+                        text = message.messageText ?: "",
+                        color = textColor,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
+                    )
+                }
             }
         }
 
@@ -326,6 +343,41 @@ fun ChatMessageBubble(message: Message, isSentByCurrentUser: Boolean) {
             style = MaterialTheme.typography.labelSmall,
             color = TextGray,
             modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp)
+        )
+    }
+}
+
+@Composable
+fun VideoPlayer(uri: Uri, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            setMediaItem(MediaItem.fromUri(uri))
+            prepare()
+        }
+    }
+
+    DisposableEffect(uri) {
+        onDispose {
+            exoPlayer.release()
+        }
+    }
+
+    Box(modifier = modifier.background(Color.Black), contentAlignment = Alignment.Center) {
+        AndroidView(
+            factory = {
+                PlayerView(it).apply {
+                    player = exoPlayer
+                    useController = true
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+        Icon(
+            imageVector = Icons.Default.PlayArrow,
+            contentDescription = "Play",
+            tint = Color.White.copy(alpha = 0.5f),
+            modifier = Modifier.size(64.dp)
         )
     }
 }
